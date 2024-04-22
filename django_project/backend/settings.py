@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_q',
-
+    "api_base.apps.ApiBaseConfig",
+    "api_lessons.apps.ApiLessonsConfig",
+    "api_tasks.apps.ApiTasksConfig",
 ]
 
 MIDDLEWARE = [

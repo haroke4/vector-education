@@ -2,10 +2,10 @@ from django.contrib import admin
 from .models import *
 
 
-# Register your models here.
 @admin.register(UserTasksProfile)
 class UserTasksProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_profile', 'survey_completed', 'earned_coins', 'curr_streak', 'max_streak')
+    list_display = ('id', 'user_profile', 'survey_completed',
+                    'earned_coins', 'curr_streak', 'max_streak')
     search_fields = ('user_profile__user__username',)
     filter_horizontal = ('completed_quizzes',)
 
@@ -34,9 +34,11 @@ class QuizQuestionAdmin(admin.ModelAdmin):
 
     inlines = [AnswersInline]
 
+
 @admin.register(UserQuizQuestion)
 class UserQuizQuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_tasks_profile', 'quiz_question', 'answer', 'coins_earned')
+    list_display = ('id', 'user_tasks_profile',
+                    'quiz_question', 'answer', 'coins_earned')
 
 
 @admin.register(SurveyQuestion)
