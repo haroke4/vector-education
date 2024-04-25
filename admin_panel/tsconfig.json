@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "lib": ["DOM", "DOM.Iterable", "ES2021"],
+      "allowJs": false,
+      "skipLibCheck": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "jsx": "react-jsx",
+      "types": ["vite/client", "vite-plugin-svgr/client"]                                /* Skip type checking all .d.ts files. */
+    }
+  }
