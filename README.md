@@ -1,6 +1,6 @@
 # Vector Education Backend and Admin Panel
 
-Название Django проекта: `backend`, находится в `django_project`
+Название Django проекта: `backend`, находится в `backend`
 
 1. Сгенерируйте конфиг
 
@@ -8,7 +8,7 @@
 ./helper.sh config
 ```
 
-2. Заполните файл `django_project/.env`
+2. Заполните файл `backend/.env`
 3. Запустите проект
 
 ```

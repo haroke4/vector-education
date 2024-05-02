@@ -1,10 +1,10 @@
 #!/bin/bash
 
 if [[ $1 = 'config' ]]; then
-    chmod +x ./django_project/entrypoint.sh
-    cat .env.example >> django_project/.env
+    chmod +x ./backend/entrypoint.sh
+    cat .env.example >> backend/.env
     echo ".env создан. "
-    echo "Смените в django_project/.env:"
+    echo "Смените в backend/.env:"
     echo "SECRET_KEY"
     echo "NGINX_HOST"
     echo "SMTP"
@@ -23,16 +23,16 @@ if [[ $1 = 'stop' ]]; then
 fi
 
 if [[ $1 = 'django' ]]; then
-    echo "Starting django_project"
-    docker compose up django_project --build -d
+    echo "Starting backend"
+    docker compose up backend --build -d
 fi
 
 if [[ $1 = 'dbash' ]]; then
-    echo "Opening django_project shell"
-    docker compose exec -it django_project bash
+    echo "Opening backend shell"
+    docker compose exec -it backend bash
 fi
 
 if [[ $1 = 'logs' ]]; then
     echo "Django logs"
-    docker compose logs django_project
+    docker compose logs backend
 fi

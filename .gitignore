@@ -1,8 +1,8 @@
 .author
-django_project/db.sqlite3
-django_project/service_account.json
-django_project/logs.log
-django_project/staticfiles/
+backend/db.sqlite3
+backend/service_account.json
+backend/logs.log
+backend/staticfiles/
 .env
 venv/
 .idea
