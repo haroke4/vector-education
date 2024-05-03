@@ -1,9 +1,7 @@
 from django.urls import path
-
-from .views import FireBaseAuthAPI, public, protected
+from .views import *
 
 urlpatterns = [
     path('firebase/auth/', FireBaseAuthAPI.as_view(), name='firebase_auth'),
-    path('public/', public, name='public'),
-    path('protected/', protected, name='protected'),
+    path("get_welcome_info/", get_welcome_info)
 ]

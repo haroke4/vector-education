@@ -1,5 +1,5 @@
 from django.db import models
-from api_base.models import UserProfile
+from api_users.models import UserProfile
 
 
 class UserTasksProfile(models.Model):
@@ -7,10 +7,14 @@ class UserTasksProfile(models.Model):
                                         related_name='tasks_profile')
     completed_quizzes = models.ManyToManyField('QuizBatch', related_name='completed_users',
                                                verbose_name='Пройденные викторины')
-    survey_completed = models.BooleanField(default=False, verbose_name='Опрос пройден')
-    earned_coins = models.IntegerField(default=0, verbose_name='Заработанные монеты c задании')
-    curr_streak = models.IntegerField(default=0, verbose_name='Нынешняя серия правильных ответов')
-    max_streak = models.IntegerField(default=0, verbose_name='Максимальная серия правильных ответов')
+    survey_completed = models.BooleanField(
+        default=False, verbose_name='Опрос пройден')
+    earned_coins = models.IntegerField(
+        default=0, verbose_name='Заработанные монеты c задании')
+    curr_streak = models.IntegerField(
+        default=0, verbose_name='Нынешняя серия правильных ответов')
+    max_streak = models.IntegerField(
+        default=0, verbose_name='Максимальная серия правильных ответов')
 
     def __str__(self):
         return f'{self.id} Пользователь Задании [{self.user_profile}]'
@@ -49,7 +53,8 @@ class QuizBatch(models.Model):
         ('green', 'Зеленый'),
     ]
     name = models.CharField(max_length=2000, verbose_name='Название')
-    card_color = models.CharField(max_length=100, choices=CARD_COLOR_CHOICES, verbose_name='Цвет карточки')
+    card_color = models.CharField(
+        max_length=100, choices=CARD_COLOR_CHOICES, verbose_name='Цвет карточки')
 
     def __str__(self):
         return f'{self.id} Викторина [{self.name}]'
@@ -64,7 +69,6 @@ class QuizQuestion(models.Model):
                                    related_name='questions')
     question = models.CharField(max_length=100, verbose_name='Вопрос')
 
-
     def __str__(self):
         return f'{self.id} Вопрос викторины'
 
@@ -77,7 +81,8 @@ class QuizQuestionAnswer(models.Model):
     quiz_question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name='Вопрос',
                                       related_name='answers')
     answer = models.CharField(max_length=2000, verbose_name='Ответ')
-    is_correct = models.BooleanField(default=False, verbose_name='Правильный ответ')
+    is_correct = models.BooleanField(
+        default=False, verbose_name='Правильный ответ')
 
     def __str__(self):
         return f'{self.id} Ответ Викторины'
@@ -92,8 +97,10 @@ class UserQuizQuestion(models.Model):
                                            related_name='quiz_questions')
     quiz_question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, verbose_name='Вопрос',
                                       related_name='user_answers')
-    answer = models.ForeignKey(QuizQuestionAnswer, on_delete=models.CASCADE, verbose_name='Ответ')
-    coins_earned = models.IntegerField(default=0, verbose_name='Заработанные монеты')
+    answer = models.ForeignKey(
+        QuizQuestionAnswer, on_delete=models.CASCADE, verbose_name='Ответ')
+    coins_earned = models.IntegerField(
+        default=0, verbose_name='Заработанные монеты')
 
     def __str__(self):
         return f'{self.id} Ответ на вопрос викторины'
@@ -120,7 +127,8 @@ class UserSurveyAnswer(models.Model):
                                            related_name='survey_answers')
     survey_question = models.ForeignKey(SurveyQuestion, on_delete=models.CASCADE, verbose_name='Вопрос',
                                         related_name='answers')
-    mark = models.IntegerField(verbose_name='Оценка', null=False, default=False)
+    mark = models.IntegerField(
+        verbose_name='Оценка', null=False, default=False)
 
     def __str__(self):
         return f'{self.id} Ответ опроса '

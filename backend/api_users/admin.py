@@ -1,3 +1,6 @@
 from django.contrib import admin
+from backend.admin import UniversalAdmin
+from .models import UserProfile, NotificationSettings
 
-# Register your models here.
+admin.site.register(UserProfile, UniversalAdmin)
+admin.site.register(NotificationSettings, UniversalAdmin)

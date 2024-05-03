@@ -3,13 +3,12 @@ from django.shortcuts import render
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from api_base.response import success_with_text, error_with_text
+from backend.response import success_with_text, error_with_text
 from .serializers import *
 from .model_serializers import *
 from .models import *
 
 
-# Create your views here.
 class GetQuizzesView(APIView):
     def get(self, request: Request):
         quizzes = QuizBatch.objects.all()
