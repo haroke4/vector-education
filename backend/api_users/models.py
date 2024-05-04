@@ -1,8 +1,10 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class UserProfile(models.Model):
+class UserModel(AbstractUser):
     name = models.CharField(max_length=255)
+    email = models.EmailField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='profile_images', blank=True)
     friends = models.ManyToManyField("self", blank=True)
@@ -10,8 +12,14 @@ class UserProfile(models.Model):
         "self", blank=True, symmetrical=False, related_name='requests_sent')
     firebase_user_id = models.CharField(max_length=200, null=True, blank=True)
 
+    # Firebase Cloud Messaging token for push notifications
+    fcm_token = models.CharField(max_length=255, null=True, blank=True)
+    blocked = models.BooleanField(default=False)
+    REQUIRED_FIELDS = ['email']
+
+
     def __str__(self):
-        return self.name
+        return f'Profile of {self.name}'
 
     def send_friend_request(self, to_user):
         if (to_user != self) and (to_user not in self.friends.all()):
@@ -29,7 +37,7 @@ class UserProfile(models.Model):
 
 
 class NotificationSettings(models.Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
     periodic_lesson_reminders = models.BooleanField(default=True)
     friend_request_notifications = models.BooleanField(default=True)
 

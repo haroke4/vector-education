@@ -1,5 +1,5 @@
 from django.db import models
-from api_users.models import UserProfile
+from api_users.models import UserModel
 
 
 class Lesson(models.Model):
@@ -29,7 +29,7 @@ class Lesson(models.Model):
 
 
 class Progress(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     has_watched = models.BooleanField(default=False)
 

@@ -1,9 +1,9 @@
 from django.db import models
-from api_users.models import UserProfile
+from api_users.models import UserModel
 
 
 class UserTasksProfile(models.Model):
-    user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, verbose_name='Профиль пользователя',
+    user_profile = models.OneToOneField(UserModel, on_delete=models.CASCADE, verbose_name='Профиль пользователя',
                                         related_name='tasks_profile')
     completed_quizzes = models.ManyToManyField('QuizBatch', related_name='completed_users',
                                                verbose_name='Пройденные викторины')

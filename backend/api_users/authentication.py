@@ -3,7 +3,7 @@ from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.request import Request
 
-from .models import UserProfile
+from .models import UserModel
 
 
 class FireBaseAuth(BaseAuthentication):
@@ -30,7 +30,7 @@ class FireBaseAuth(BaseAuthentication):
                 'The user provided with the auth token is not a valid Firebase user, it has no Firebase UID')
 
         try:
-            user = UserProfile.objects.get(firebase_user_id=firebase_user_id)
+            user = UserModel.objects.get(firebase_user_id=firebase_user_id)
             return user, None
-        except UserProfile.DoesNotExist:
+        except UserModel.DoesNotExist:
             return None

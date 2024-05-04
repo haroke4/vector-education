@@ -1,56 +1,66 @@
 from django.db import IntegrityError
 from firebase_admin import auth
-from rest_framework import status, generics
-from rest_framework.exceptions import APIException
+from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from backend.response import success_with_text
-from .models import UserProfile
-from .serializers import FireBaseAuthSerializer
+from rest_framework.views import APIView
+
+from .models import UserModel
+from api_users.serializers.serializers import FireBaseAuthSerializer
+from backend.response import error_with_text, success_with_text
+from .serializers.model_serializers import UserModelSerializer
 
 
-class FireBaseAuthAPI(generics.GenericAPIView):
+class AuthViaFirebase(APIView):
     serializer_class = FireBaseAuthSerializer
+    permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        token = request.data.get('token')
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return error_with_text(serializer.errors)
+        token = serializer.validated_data['token']
+
+        # trying  to decode token, if not valid return error
         try:
             decoded_token = auth.verify_id_token(token)
         except ValueError:
             return Response({'detail': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # trying to get the user id from the token, if not valid return error
         try:
             firebase_user_id = decoded_token['uid']
         except KeyError:
-            return Response({'detail': 'The user provided with the auth token is not a valid Firebase user, it has no Firebase UID'}, status=status.HTTP_400_BAD_REQUEST)
+            return error_with_text('The user provided with the auth token is not a valid '
+                                   'Firebase user, it has no Firebase UID')
 
+        # trying to get the user from the database, if not found create a new user
         try:
-            user = UserProfile.objects.get(
-                firebase_user_id=firebase_user_id)
-            content = {
-                "username": user.username,
-                "email": user.email,
-                "firebase_user_id": user.firebase_user_id
-            }
-            return Response(content, status=status.HTTP_200_OK)
-
-        except UserProfile.DoesNotExist:
-            user = auth.get_user(firebase_user_id)
+            user_profile = UserModel.objects.get(firebase_user_id=firebase_user_id)
+        except UserModel.DoesNotExist:
+            firebase_user = auth.get_user(firebase_user_id)
             try:
-                new_user = UserProfile.objects.create(
-                    username=user.display_name,
-                    email=user.email,
+                user_profile = UserModel.objects.create(
+                    name=firebase_user.display_name,
+                    email=firebase_user.email,
                     firebase_user_id=firebase_user_id
                 )
-                content = {
-                    "username": new_user.username,
-                    "email": new_user.email,
-                    "firebase_user_id": new_user.firebase_user_id
-                }
-                return Response(content, status=status.HTTP_201_CREATED)
             except IntegrityError:
-                return Response({'detail': 'A user with the provided Firebase UID already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return error_with_text('A user with the provided Firebase UID already exists')
+
+        # delete old token and generate a new one
+        Token.objects.filter(user=user_profile).delete()
+        token = Token.objects.create(user=user_profile)
+        return success_with_text(UserModelSerializer(user_profile).data | {'token': token.key})
+
+class SetCloudMessagingToken(APIView):
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        pass
+
 
 
 @api_view(["GET"])
