@@ -1,5 +1,4 @@
 from django.db.models import Sum
-from django.shortcuts import render
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -21,7 +20,7 @@ class GetQuizQuestionView(APIView):
         if not serializer.is_valid():
             return error_with_text(serializer.errors)
 
-        quiz: QuizBatch = serializer.validated_data['quiz_id']
+        quiz: QuizBatch = serializer.validated_data['quiz_id']  # type: ignore
         user_tasks_profile: UserTasksProfile = request.user.user_profile.tasks_profile
 
         completed_quiz_questions = UserQuizQuestion.objects.filter(
