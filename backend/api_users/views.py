@@ -1,5 +1,6 @@
 from django.db import IntegrityError
 from firebase_admin import auth
+from firebase_admin._auth_utils import InvalidIdTokenError
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -9,7 +10,7 @@ from rest_framework.views import APIView
 
 from .models import UserModel
 from api_users.serializers.serializers import FireBaseAuthSerializer
-from backend.response import error_with_text, success_with_text
+from backend.global_function import error_with_text, success_with_text
 from .serializers.model_serializers import UserModelSerializer
 
 
@@ -27,7 +28,9 @@ class AuthViaFirebase(APIView):
         try:
             decoded_token = auth.verify_id_token(token)
         except ValueError:
-            return Response({'detail': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return error_with_text('The provided token is not a valid Firebase token')
+        except InvalidIdTokenError:
+            return error_with_text('The provided token is not a valid Firebase token')
 
         # trying to get the user id from the token, if not valid return error
         try:
@@ -43,9 +46,13 @@ class AuthViaFirebase(APIView):
             firebase_user = auth.get_user(firebase_user_id)
             try:
                 user_profile = UserModel.objects.create(
+                    photo_url=firebase_user.photo_url,
                     name=firebase_user.display_name,
                     email=firebase_user.email,
-                    firebase_user_id=firebase_user_id
+                    firebase_user_id=firebase_user_id,
+                    description='no bio yet',
+                    username=firebase_user.email,
+                    password='no password',
                 )
             except IntegrityError:
                 return error_with_text('A user with the provided Firebase UID already exists')
@@ -55,12 +62,12 @@ class AuthViaFirebase(APIView):
         token = Token.objects.create(user=user_profile)
         return success_with_text(UserModelSerializer(user_profile).data | {'token': token.key})
 
+
 class SetCloudMessagingToken(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
         pass
-
 
 
 @api_view(["GET"])

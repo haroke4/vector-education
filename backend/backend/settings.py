@@ -21,8 +21,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=1))
 ALLOWED_HOSTS = os.environ.get(
-    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1").split(" ")
-
+    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 192.168.8.103").split(" ")
 
 # Application definition
 
@@ -39,10 +38,8 @@ INSTALLED_APPS = [
     'django_q',
     'rest_framework.authtoken',
     "api_lessons",
-    "api_tasks",
     "api_users",
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -89,9 +86,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',
-    ]
+        'api_users.permissions.IsAuthenticatedWithBlocked',
+    ],
+    'EXCEPTION_HANDLER': 'backend.global_function.custom_exception_handler',
 }
 
 # Firebase
