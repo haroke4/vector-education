@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
 from .models import UserModel
-from api_users.serializers.serializers import FireBaseAuthSerializer
+from api_users.serializers import *
 from backend.global_function import error_with_text, success_with_text
 from .serializers.model_serializers import UserModelSerializer
 
@@ -47,7 +47,7 @@ class AuthViaFirebase(APIView):
             try:
                 user_profile = UserModel.objects.create(
                     photo_url=firebase_user.photo_url,
-                    name=firebase_user.display_name,
+                    name=firebase_user.display_name.split()[0],
                     email=firebase_user.email,
                     firebase_user_id=firebase_user_id,
                     description='no bio yet',
@@ -70,6 +70,19 @@ class SetCloudMessagingToken(APIView):
         pass
 
 
-@api_view(["GET"])
-def get_welcome_info(request):
-    return success_with_text({"id": 1, "name": "Alibi", "days_straight": 365, "progress": 99})
+class GetUserView(APIView):
+    def get(self, request):
+        user: UserModel = request.user
+        return success_with_text(UserModelSerializer(user).data)
+
+
+class EditNameOrDescriptionView(APIView):
+    def post(self, request):
+        serializer = EditNameOrDescriptionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user: UserModel = request.user
+        user.name = serializer.validated_data.get('name', user.name)
+        user.description = serializer.validated_data.get('description', user.description)
+        user.save()
+
+        return success_with_text(UserModelSerializer(user).data)
