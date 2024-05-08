@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'protected_media.apps.ProtectedMediaConfig',
     'corsheaders',
     'django_q',
     'rest_framework.authtoken',
@@ -221,3 +222,8 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+PROTECTED_MEDIA_ROOT = "%s/protected/" % BASE_DIR
+PROTECTED_MEDIA_URL = "/protected"
+PROTECTED_MEDIA_LOCATION_PREFIX = "/internal"  # Prefix used in nginx config
+PROTECTED_MEDIA_AS_DOWNLOADS = False  # Controls inclusion of a Content-Disposition header

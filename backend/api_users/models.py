@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from protected_media.models import ProtectedImageField
 
 
 class UserTypes:
@@ -20,8 +21,9 @@ class UserModel(AbstractUser):
     blocked = models.BooleanField(default=False)
     name = models.CharField(max_length=255, verbose_name='Имя')
     email = models.EmailField(max_length=255, unique=True, verbose_name='Email')
-    description = models.TextField(blank=True, null=True, verbose_name='Описание')
-    photo_url = models.URLField(blank=True, null=True, verbose_name='Ссылка на фото')
+    description = models.TextField(verbose_name='Описание')
+    photo = ProtectedImageField(upload_to='user_photos/', blank=True, null=True, verbose_name='Фото')
+    photo_url = models.URLField(blank=True, null=True, verbose_name='Ссылка на фото (Firebase)')
     friends = models.ManyToManyField("self", blank=True, verbose_name='Друзья')
     friendship_requests = models.ManyToManyField("self", blank=True, symmetrical=False,
                                                  related_name='pending_friend_requests',

@@ -45,7 +45,7 @@ class AuthViaFirebase(APIView):
         except UserModel.DoesNotExist:
             firebase_user = auth.get_user(firebase_user_id)
             try:
-                user_profile = UserModel.objects.create(
+                user_profile: UserModel = UserModel.objects.create(
                     photo_url=firebase_user.photo_url,
                     name=firebase_user.display_name.split()[0],
                     email=firebase_user.email,
@@ -54,6 +54,7 @@ class AuthViaFirebase(APIView):
                     username=firebase_user.email,
                     password='no password',
                 )
+                user_profile.set_password('no password')
             except IntegrityError:
                 return error_with_text('A user with the provided Firebase UID already exists')
 
@@ -86,3 +87,14 @@ class EditNameOrDescriptionView(APIView):
         user.save()
 
         return success_with_text(UserModelSerializer(user).data)
+
+
+class EditPhotoView(APIView):
+    def post(self, request):
+        data = request.data.dict()
+        if data.get('image', None) is not None:
+            image_data = data.pop('image')
+            request.user.photo = image_data
+            request.user.save()
+            return success_with_text(UserModelSerializer(request.user).data)
+        return error_with_text('No image provided')
