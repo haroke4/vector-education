@@ -1,8 +1,6 @@
 from django.apps import AppConfig
 
 
-class ApiTasksConfig(AppConfig):
+class ApiDCConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'api_tasks'
-
-    verbose_name = "Задания"
+    name = 'api_data_collection'

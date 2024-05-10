@@ -1,63 +1,100 @@
 from django.db import IntegrityError
 from firebase_admin import auth
-from rest_framework import status, generics
+from firebase_admin._auth_utils import InvalidIdTokenError
+from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from backend.response import error_with_text, success_with_text
-from .models import UserProfile
+from rest_framework.views import APIView
+
+from .models import UserModel
+from api_users.serializers import *
+from backend.global_function import error_with_text, success_with_text
+from .serializers.model_serializers import UserModelSerializer
 
 
-class FireBaseAuthAPI(generics.GenericAPIView):
+class AuthViaFirebase(APIView):
+    serializer_class = FireBaseAuthSerializer
+    permission_classes = []
+
     def post(self, request, *args, **kwargs):
-        token = request.data.get('token')
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return error_with_text(serializer.errors)
+        token = serializer.validated_data['token']
+
+        # trying  to decode token, if not valid return error
         try:
             decoded_token = auth.verify_id_token(token)
         except ValueError:
-            return Response({'detail': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return error_with_text('The provided token is not a valid Firebase token')
+        except InvalidIdTokenError:
+            return error_with_text('The provided token is not a valid Firebase token')
 
+        # trying to get the user id from the token, if not valid return error
         try:
             firebase_user_id = decoded_token['uid']
         except KeyError:
-            return Response({'detail': 'The user provided with the auth token is not a valid Firebase user, it has no Firebase UID'}, status=status.HTTP_400_BAD_REQUEST)
+            return error_with_text('The user provided with the auth token is not a valid '
+                                   'Firebase user, it has no Firebase UID')
 
+        # trying to get the user from the database, if not found create a new user
         try:
-            user = UserProfile.objects.get(
-                firebase_user_id=firebase_user_id)
-            content = {
-                "firebase_user_id": user.firebase_user_id
-            }
-            return Response(content, status=status.HTTP_200_OK)
-
-        except UserProfile.DoesNotExist:
-            user = auth.get_user(firebase_user_id)
+            user_profile = UserModel.objects.get(firebase_user_id=firebase_user_id)
+        except UserModel.DoesNotExist:
+            firebase_user = auth.get_user(firebase_user_id)
             try:
-                new_user = UserProfile.objects.create(
-                    name=user.display_name,
-                    firebase_user_id=firebase_user_id
+                user_profile: UserModel = UserModel.objects.create(
+                    photo_url=firebase_user.photo_url,
+                    name=firebase_user.display_name.split()[0],
+                    email=firebase_user.email,
+                    firebase_user_id=firebase_user_id,
+                    description='no bio yet',
+                    username=firebase_user.email,
+                    password='no password',
                 )
-                content = {
-                    "firebase_user_id": new_user.firebase_user_id
-                }
-                return Response(content, status=status.HTTP_201_CREATED)
+                user_profile.set_password('no password')
             except IntegrityError:
-                return Response({'detail': 'A user with the provided Firebase UID already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return error_with_text('A user with the provided Firebase UID already exists')
+
+        # delete old token and generate a new one
+        Token.objects.filter(user=user_profile).delete()
+        token = Token.objects.create(user=user_profile)
+        return success_with_text(UserModelSerializer(user_profile).data | {'token': token.key})
 
 
-@api_view(["GET"])
-def get_welcome_info(request):
-    return success_with_text({"id": 1, "name": "Alibi", "days_straight": 365, "progress": 99})
+class SetCloudMessagingToken(APIView):
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        pass
 
 
-@api_view(["POST"])
-def send_request_to_friendship(request):
-    token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]
-    user = UserProfile.get_user_by_token(token)
+class GetUserView(APIView):
+    def get(self, request):
+        user: UserModel = request.user
+        return success_with_text(UserModelSerializer(user).data)
 
-    if user:
-        to_user_id = request.data.get('to_user')
-        to_user = UserProfile.objects.get(id=to_user_id)
-        user.send_friendship_request(to_user)
-        return success_with_text("The friendship request has been successfully sent")
-    else:
-        return error_with_text("Error")
+
+class EditNameOrDescriptionView(APIView):
+    def post(self, request):
+        serializer = EditNameOrDescriptionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user: UserModel = request.user
+        user.name = serializer.validated_data.get('name', user.name)
+        user.description = serializer.validated_data.get('description', user.description)
+        user.save()
+
+        return success_with_text(UserModelSerializer(user).data)
+
+
+class EditPhotoView(APIView):
+    def post(self, request):
+        data = request.data.dict()
+        if data.get('image', None) is not None:
+            image_data = data.pop('image')
+            request.user.photo = image_data
+            request.user.save()
+            return success_with_text(UserModelSerializer(request.user).data)
+        return error_with_text('No image provided')

@@ -10,15 +10,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
+# Default User
+AUTH_USER_MODEL = 'api_users.UserModel'
+USERNAME_FIELD = 'email'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
     "SECRET_KEY", default="django-insecure-3b!7h8__f5e2frki-d&*)gb5y@--&*e&#oh=41y)cq%jwh$g5c")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=1))
-
 ALLOWED_HOSTS = os.environ.get(
-    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1").split(" ")
+    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 192.168.8.101").split(" ")
 
 # Application definition
 
@@ -31,11 +34,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'protected_media.apps.ProtectedMediaConfig',
     'corsheaders',
     'django_q',
-    "api_lessons.apps.ApiLessonsConfig",
-    "api_tasks.apps.ApiTasksConfig",
-    "api_users.apps.ApiUsersConfig",
+    'rest_framework.authtoken',
+    "api_lessons",
+    "api_users",
+    'api_data_collection',
 ]
 
 MIDDLEWARE = [
@@ -77,16 +82,15 @@ AUTH_TOKEN_VALIDITY = timezone.timedelta(days=1)
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'errors',
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        "rest_framework.authentication.SessionAuthentication",
-        "api_users.authentication.FireBaseAuth",
+        "rest_framework.authentication.TokenAuthentication",
     ],
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',
-    ]
+        'api_users.permissions.IsAuthenticatedWithBlocked',
+    ],
+    'EXCEPTION_HANDLER': 'backend.global_function.custom_exception_handler',
 }
 
 # Firebase
@@ -218,3 +222,8 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+PROTECTED_MEDIA_ROOT = "%s/protected/" % BASE_DIR
+PROTECTED_MEDIA_URL = "/protected"
+PROTECTED_MEDIA_LOCATION_PREFIX = "/internal"  # Prefix used in nginx config
+PROTECTED_MEDIA_AS_DOWNLOADS = False  # Controls inclusion of a Content-Disposition header
