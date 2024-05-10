@@ -7,7 +7,7 @@ class LessonBatchAdmin(admin.ModelAdmin):
     class LessonsInline(admin.TabularInline):
         model = Lesson
         extra = 0
-        fields = ('topic', 'description', 'video_url',)
+        fields = ('is_available_on_free', 'topic',)
         show_change_link = True
 
     list_display = ('id', 'title')
