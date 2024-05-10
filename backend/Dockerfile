@@ -11,15 +11,16 @@ WORKDIR $HOME
 RUN apt-get update && apt-get install -y gcc netcat
 
 RUN pip install --upgrade pip
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+COPY ./req_linux.txt .
+RUN pip install -r req_linux.txt
+
+# copy project and collect static files
+COPY . .
 
 # copy entrypoint.sh
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' entrypoint.sh
 RUN chmod +x entrypoint.sh
 
-# copy project and collect static files
-COPY . .
 
-ENTRYPOINT ["/home/app/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
