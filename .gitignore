@@ -1,6 +1,7 @@
 .env
 venv/
 .idea
+.vscode
 
 **/__pycache__/
 
@@ -9,4 +10,3 @@ backend/logs.log
 backend/staticfiles/
 
 service_account.json
-react-firebase-auth/
