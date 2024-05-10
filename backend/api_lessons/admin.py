@@ -17,25 +17,42 @@ class LessonBatchAdmin(admin.ModelAdmin):
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    class QuestionInline(admin.TabularInline):
-        model = Question
+    class LessonComponentInline(admin.TabularInline):
+        model = LessonComponent
         extra = 0
-        fields = ('text',)
+        fields = ('type', 'video_component', 'question_component', 'conspectus_component', 'order')
 
-    list_display = ('id', 'lesson_batch', 'topic', 'description', 'video_url')
+    list_display = ('id', 'lesson_batch', 'topic',)
+    search_fields = list_display
+    inlines = [LessonComponentInline]
+
+
+@admin.register(LessonComponent)
+class LessonComponentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lesson', 'type')
     search_fields = list_display
 
-    inlines = [QuestionInline]
+
+@admin.register(VideoComponent)
+class VideoComponentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'description', 'video_url')
+    search_fields = list_display
 
 
-@admin.register(Question)
+@admin.register(ConspectusComponent)
+class ConspectusComponentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title')
+    search_fields = list_display
+
+
+@admin.register(QuestionComponent)
 class QuestionAdmin(admin.ModelAdmin):
     class QuestionAnswerInline(admin.TabularInline):
         model = QuestionAnswer
         extra = 0
         fields = ('text', 'is_correct')
 
-    list_display = ('id', 'lesson', 'text')
+    list_display = ('id', 'text')
     search_fields = list_display
 
     inlines = [QuestionAnswerInline]

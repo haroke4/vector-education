@@ -8,7 +8,7 @@ from backend.global_function import *
 class GetLessonsBatchView(APIView):
     def get(self, request):
         lessons_batch = LessonBatch.objects.all()
-        return success_with_text(LessonBatchSerializer(lessons_batch, many=True).data)
+        return success_with_text(LessonBatchSerializer(lessons_batch, user=request.user, many=True).data)
 
 
 class GetLessonView(APIView):

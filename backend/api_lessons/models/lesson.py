@@ -31,8 +31,6 @@ class Lesson(models.Model):
     lesson_batch = models.ForeignKey(LessonBatch, on_delete=models.CASCADE, verbose_name='Коллекция уроков',
                                      related_name='lessons')
     topic = models.CharField(max_length=200, verbose_name='Тема')
-    description = models.CharField(max_length=2000, verbose_name='Описание')
-    video_url = models.URLField(verbose_name='Ссылка на видео')
 
     def __str__(self):
         return f'{self.pk} Lesson: {self.topic} '
@@ -41,28 +39,3 @@ class Lesson(models.Model):
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
 
-
-class Question(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, verbose_name='Урок', related_name='questions')
-    text = models.CharField(max_length=2000, verbose_name='Текст вопроса')
-
-    def __str__(self):
-        return f'{self.pk} Question: "{self.text}"'
-
-    class Meta:
-        verbose_name = 'Вопрос'
-        verbose_name_plural = 'Вопросы'
-        ordering = ['id']
-
-
-class QuestionAnswer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name='Вопрос', related_name='answers')
-    text = models.CharField(max_length=2000, verbose_name='Ответ')
-    is_correct = models.BooleanField(default=False, verbose_name='Правильный ответ')
-
-    def __str__(self):
-        return f'{self.pk} QuestionAnswer: "{self.text}"'
-
-    class Meta:
-        verbose_name = 'Ответ на вопрос'
-        verbose_name_plural = 'Ответы на вопросы'

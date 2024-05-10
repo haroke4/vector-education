@@ -3,7 +3,27 @@ from api_lessons.models import *
 from backend.global_function import UserContextNeededSerializer
 
 
-class LessonBatchSerializer(serializers.ModelSerializer):
+class LessonMinimalDataSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
+    progress = serializers.SerializerMethodField()
+    available = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = ['id', 'is_available_on_free', 'progress', 'available']
+
+    def get_progress(self, obj):
+        user_data = UserLessonModel.objects.filter(user=self.user, lesson=obj).first()
+        if user_data:
+            return user_data.progress
+        return 0.0
+
+    def get_available(self, obj):
+        if self.user.is_paid() or obj.is_available_on_free:
+            return True
+        return False
+
+
+class LessonBatchSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
     lessons = serializers.SerializerMethodField()
 
     class Meta:
@@ -11,8 +31,7 @@ class LessonBatchSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_lessons(self, obj):
-        # returning only id's for security
-        return [lesson.id for lesson in obj.lessons.all()]
+        return LessonMinimalDataSerializer(obj.lessons.all(), user=self.user, many=True).data
 
 
 class QuestionAnswerSerializer(serializers.ModelSerializer):
@@ -21,24 +40,51 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class QuestionSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
+class VideoComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoComponent
+        fields = '__all__'
+
+
+class ConspectusComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConspectusComponent
+        fields = '__all__'
+
+
+class QuestionComponentSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
     answers = QuestionAnswerSerializer(many=True)
     is_user_answered = serializers.SerializerMethodField()
 
     class Meta:
-        model = Question
+        model = QuestionComponent
         fields = '__all__'
 
     def get_is_user_answered(self, obj):
         return UserQuestionModel.objects.filter(user=self.user, question=obj).exists()
 
 
+class LessonComponentSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
+    conspectus_component = ConspectusComponentSerializer()
+    video_component = VideoComponentSerializer()
+    question_component = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LessonComponent
+        fields = '__all__'
+
+    def get_question_component(self, obj):
+        if obj.question_component:
+            return QuestionComponentSerializer(obj.question_component, user=self.user).data
+        return None
+
+
 class LessonSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
-    questions = serializers.SerializerMethodField()
+    lesson_components = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
         fields = '__all__'
 
-    def get_questions(self, obj):
-        return QuestionSerializer(obj.questions.all(), many=True, user=self.user).data
+    def get_lesson_components(self, instance):
+        return LessonComponentSerializer(instance.components.all(), user=self.user, many=True).data
