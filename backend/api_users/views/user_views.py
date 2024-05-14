@@ -8,11 +8,15 @@ from api_users.serializers.model_serializers import UserModelSerializer
 from backend.global_function import success_with_text, error_with_text
 
 
-class SetCloudMessagingToken(APIView):
-    permission_classes = []
-
+class SetFCMToken(APIView):
     def post(self, request: Request, *args, **kwargs):
-        pass
+        user: UserModel = request.user
+        token = request.data.get('token', None)
+        if token is None:
+            return error_with_text('Token is required')
+        user.fcm_token = token
+        user.save()
+        return success_with_text('Token set')
 
 
 class GetUserView(APIView):
