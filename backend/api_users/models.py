@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 from protected_media.models import ProtectedImageField
+from rest_framework.exceptions import ValidationError
 
 
 class UserTypes:
@@ -38,7 +39,6 @@ class UserModel(AbstractUser):
                                                  verbose_name='Запросы в друзья')
 
     # App related stuff
-    last_login_datetime = models.DateTimeField(auto_now=True, verbose_name='Последний вход')
     points = models.IntegerField(default=0, verbose_name='Баллы')
     day_streak = models.IntegerField(default=0, verbose_name='Дневная серия')
     max_day_streak = models.IntegerField(default=0, verbose_name='Максимальная дневная серия')
@@ -48,40 +48,7 @@ class UserModel(AbstractUser):
     def __str__(self):
         return f'{self.pk} Profile of {self.name}'
 
-    def update_activity_date(self, register_login: bool):
-        """
-        Обновляет дату активности пользователя и дневную серию
-        :param register_login: True - фиксируем вход пользователя, False - это обновление day_streak
-        """
-        today = timezone.now()
-        last_active_day: UserActivityDateModel = self.activity_dates.last()
 
-        if register_login:
-            self.last_login_datetime = today
-        else:
-            # Если прошло меньше 5ти минут с последнего входа, то не обновляем активность
-            if (today - self.last_login_datetime).minutes < 5:
-                return
-
-        if last_active_day is not None:
-            difference = (today.date() - last_active_day.datetime.date()).days
-            if difference == 0:
-                return
-            elif difference == 1 and not register_login:
-                self.add_points(points=1, description='Бонус за дневную серию')
-                self.day_streak += 1
-                if self.day_streak > self.max_day_streak:
-                    self.max_day_streak = self.day_streak
-                self.save()
-
-                if self.day_streak % 10 == 0:
-                    self.add_points(points=5, description='Бонусы за 10 дней подряд')
-            elif difference > 1:
-                self.day_streak = 0
-                self.save()
-
-        if not register_login:
-            self.activity_dates.create()
 
     def add_points(self, points: int, description: str):
         if points < 0:
@@ -121,21 +88,22 @@ class NotificationSettings(models.Model):
 
 class UserActivityDateModel(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name='activity_dates')
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(default=timezone.now, verbose_name='Дата активности')
 
     class Meta:
         verbose_name = 'Активность пользователя'
         verbose_name_plural = 'Активности пользователей'
+        ordering = ['-datetime']
 
     def __str__(self):
-        return f'{self.pk} Activity of [{self.user}] on {self.date}'
+        return f'{self.pk} Activity '
 
 
 class UserPointAddHistory(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name='point_add_history')
     points = models.IntegerField()
     description = models.TextField()
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_date = models.DateTimeField(default=timezone.now, verbose_name='Дата добавления')
 
     class Meta:
         verbose_name = 'История добавления баллов'
