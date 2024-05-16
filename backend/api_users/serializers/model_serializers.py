@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from api_users.models import UserModel, UserTypes
 from api_lessons.models import Lesson, UserLessonModel
+from backend.global_function import UserContextNeededSerializer
+
 
 class UserModelSerializer(serializers.ModelSerializer):
     photo = serializers.SerializerMethodField()
@@ -30,3 +32,19 @@ class UserModelSerializer(serializers.ModelSerializer):
             return 1
         return user_lessons / all_lessons
 
+
+class UserModelAsFriendSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
+    is_request_pending = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserModel
+        fields = ['id', 'name', 'photo', 'description', 'day_streak', 'is_request_pending']
+
+    def get_photo(self, obj: UserModel):
+        if obj.photo:
+            return obj.photo.url
+        return obj.photo_url
+
+    def get_is_request_pending(self, obj: UserModel):
+        return obj.friendship_requests.filter(id=self.user.id).exists()

@@ -33,7 +33,7 @@ class UserModel(AbstractUser):
     photo_url = models.URLField(blank=True, null=True, verbose_name='Ссылка на фото (Firebase)')
 
     # user social data
-    friends = models.ManyToManyField("self", blank=True, verbose_name='Друзья')
+    friends = models.ManyToManyField("self", blank=True, verbose_name='Друзья', symmetrical=True)
     friendship_requests = models.ManyToManyField("self", blank=True, symmetrical=False,
                                                  related_name='pending_friend_requests',
                                                  verbose_name='Запросы в друзья')

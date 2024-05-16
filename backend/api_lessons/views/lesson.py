@@ -20,6 +20,12 @@ class GetLessonView(APIView):
         if not user.is_paid() and not lesson.is_available_on_free:
             return error_with_text('lesson_not_available')
 
+        lesson_before = Lesson.objects.filter(lesson_batch=lesson.lesson_batch, order=lesson.order - 1).first()
+        if lesson_before:
+            if not UserLessonModel.objects.filter(user=user, lesson=lesson_before, completed=True).exists():
+                return error_with_text('unlock_prev_lesson')
+
+        UserLessonModel.objects.get_or_create(user=user, lesson=lesson)
         return success_with_text(LessonSerializer(lesson, user=request.user).data)
 
 

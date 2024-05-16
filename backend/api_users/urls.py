@@ -8,4 +8,12 @@ urlpatterns = [
     path("edit_photo/", EditPhotoView.as_view()),
     path('update_day_streak/', UpdateDayStreak.as_view()),
     path('set_fcm_token/', SetFCMToken.as_view()),
+
+    # friends
+    path('get_friends/', GetFriendsView.as_view()),
+    path('search_friends/', SearchFriendsView.as_view()),
+    path('add_friend/', AddFriendView.as_view()),
+    path('accept_friend/', AcceptFriendRequestView.as_view()),
+    path('reject_friend/', DeclineFriendRequestView.as_view()),
+    path('delete_friend/', DeleteFromFriendsView.as_view()),
 ]

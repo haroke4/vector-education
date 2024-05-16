@@ -7,7 +7,7 @@ class LessonBatchAdmin(admin.ModelAdmin):
     class LessonsInline(admin.TabularInline):
         model = Lesson
         extra = 0
-        fields = ('is_available_on_free', 'topic',)
+        fields = ('is_available_on_free', 'topic', 'order')
         show_change_link = True
 
     list_display = ('id', 'title')
@@ -56,6 +56,12 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = list_display
 
     inlines = [QuestionAnswerInline]
+
+
+@admin.register(UserLessonModel)
+class UserLessonModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'lesson', 'completed')
+    search_fields = list_display
 
 
 admin.site.register(QuestionAnswer)
