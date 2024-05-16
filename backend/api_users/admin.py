@@ -1,6 +1,6 @@
 from django.contrib import admin
 from backend.admin import UniversalAdmin
-from .models import UserModel, NotificationSettings
+from .models import *
 
 
 @admin.register(UserModel)
@@ -10,6 +10,16 @@ class UserModelAdmin(UniversalAdmin):
 
     def get_list_display(self, request):
         return ('name', 'email', 'blocked', 'user_type')
+
+
+@admin.register(UserActivityDateModel)
+class UserActivityDateModelAdmin(UniversalAdmin):
+    list_display = ('user', 'datetime')
+
+
+@admin.register(UserPointAddHistory)
+class UserPointAddHistoryAdmin(UniversalAdmin):
+    list_display = ('user', 'points', 'description')
 
 
 admin.site.register(NotificationSettings, UniversalAdmin)

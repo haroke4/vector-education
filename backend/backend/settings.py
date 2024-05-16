@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=1))
 ALLOWED_HOSTS = os.environ.get(
-    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 192.168.8.101").split(" ")
+    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 192.168.8.101 10.10.203.250").split(" ")
 
 # Application definition
 
@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'backend.middlewares.TokenAuthMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -74,7 +75,6 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = "backend.asgi.application"
 
 AUTH_TOKEN_VALIDITY = timezone.timedelta(days=1)
@@ -145,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Almaty'
 
 USE_I18N = True
 
@@ -223,7 +223,10 @@ CHANNEL_LAYERS = {
     },
 }
 
-PROTECTED_MEDIA_ROOT = "%s/protected/" % BASE_DIR
+if os.environ.get('RUNNING_FROM_DOCKER', False):
+    PROTECTED_MEDIA_ROOT = "/home/app/protected/"
+else:
+    PROTECTED_MEDIA_ROOT = "%s/protected/" % BASE_DIR
 PROTECTED_MEDIA_URL = "/protected"
+PROTECTED_MEDIA_SERVER = "nginx"  # Defaults to "django"
 PROTECTED_MEDIA_LOCATION_PREFIX = "/internal"  # Prefix used in nginx config
-PROTECTED_MEDIA_AS_DOWNLOADS = False  # Controls inclusion of a Content-Disposition header

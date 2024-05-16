@@ -1,24 +1,19 @@
 from django.db import IntegrityError
 from firebase_admin import auth
 from firebase_admin._auth_utils import InvalidIdTokenError
-from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-
+from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from .models import UserModel
 from api_users.serializers import *
 from backend.global_function import error_with_text, success_with_text
-from .serializers.model_serializers import UserModelSerializer
 
 
 class AuthViaFirebase(APIView):
     serializer_class = FireBaseAuthSerializer
     permission_classes = []
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
             return error_with_text(serializer.errors)
@@ -62,39 +57,3 @@ class AuthViaFirebase(APIView):
         Token.objects.filter(user=user_profile).delete()
         token = Token.objects.create(user=user_profile)
         return success_with_text(UserModelSerializer(user_profile).data | {'token': token.key})
-
-
-class SetCloudMessagingToken(APIView):
-    permission_classes = []
-
-    def post(self, request, *args, **kwargs):
-        pass
-
-
-class GetUserView(APIView):
-    def get(self, request):
-        user: UserModel = request.user
-        return success_with_text(UserModelSerializer(user).data)
-
-
-class EditNameOrDescriptionView(APIView):
-    def post(self, request):
-        serializer = EditNameOrDescriptionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user: UserModel = request.user
-        user.name = serializer.validated_data.get('name', user.name)
-        user.description = serializer.validated_data.get('description', user.description)
-        user.save()
-
-        return success_with_text(UserModelSerializer(user).data)
-
-
-class EditPhotoView(APIView):
-    def post(self, request):
-        data = request.data.dict()
-        if data.get('image', None) is not None:
-            image_data = data.pop('image')
-            request.user.photo = image_data
-            request.user.save()
-            return success_with_text(UserModelSerializer(request.user).data)
-        return error_with_text('No image provided')

@@ -28,7 +28,7 @@ services:
     volumes:
       - ./backend/:/usr/src/app/
       - static_volume:/home/app/staticfiles
-      - media_volume:/home/app/mediafiles
+      - media_volume:/home/app/protected
     ports:
       - "8000:8000"
     extra_hosts:
@@ -38,6 +38,7 @@ services:
       - RUN_MIGRATE=1
       - FLUSH_DATABASE=0
       - DJANGO_SETTINGS_MODULE=backend.settings
+      - RUN_COLLECTSTATIC=0
     env_file:
       - .env
     depends_on:
@@ -57,7 +58,7 @@ services:
       - back
     volumes:
       - static_volume:/home/app/staticfiles
-      - media_volume:/home/app/mediafiles
+      - media_volume:/home/app/protected
       - ./certbot/www:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/nginx/ssl/:ro
 

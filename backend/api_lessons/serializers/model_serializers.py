@@ -4,23 +4,26 @@ from backend.global_function import UserContextNeededSerializer
 
 
 class LessonMinimalDataSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
-    progress = serializers.SerializerMethodField()
-    available = serializers.SerializerMethodField()
+    completed = serializers.SerializerMethodField()
+    friends_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
-        fields = ['id', 'is_available_on_free', 'progress', 'available']
+        fields = ['id', 'is_available_on_free', 'completed', 'friends_count']
 
-    def get_progress(self, obj):
+    def get_completed(self, obj):
         user_data = UserLessonModel.objects.filter(user=self.user, lesson=obj).first()
         if user_data:
-            return user_data.progress
-        return 0.0
-
-    def get_available(self, obj):
-        if self.user.is_paid() or obj.is_available_on_free:
-            return True
+            return user_data.completed
         return False
+
+
+    def get_friends_count(self, obj: Lesson):
+        counter = 0
+        for i in self.user.friends.all():
+            if i.lessons.last().lesson == obj:
+                counter += 1
+        return counter
 
 
 class LessonBatchSerializer(UserContextNeededSerializer, serializers.ModelSerializer):

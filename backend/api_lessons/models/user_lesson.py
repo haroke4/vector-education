@@ -9,9 +9,10 @@ PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
 
 
 class UserLessonModel(models.Model):
-    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь')
+    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='lessons')
     lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, verbose_name='Урок')
-    progress = models.DecimalField(max_digits=3, decimal_places=0, default=Decimal(0), validators=PERCENTAGE_VALIDATOR)
+    completed = models.BooleanField(default=False, verbose_name='Урок завершен')
 
 
 class UserQuestionModel(models.Model):
