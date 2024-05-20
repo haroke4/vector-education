@@ -33,12 +33,6 @@ services:
       - "8000:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    environment:
-      - RUN_MIGRATIONS=0
-      - RUN_MIGRATE=1
-      - FLUSH_DATABASE=0
-      - DJANGO_SETTINGS_MODULE=backend.settings
-      - RUN_COLLECTSTATIC=0
     env_file:
       - .env
     depends_on:

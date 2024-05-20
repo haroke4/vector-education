@@ -9,13 +9,13 @@ class UserModelSerializer(serializers.ModelSerializer):
     photo = serializers.SerializerMethodField()
     paid = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()
+    ranking = serializers.SerializerMethodField()
 
     class Meta:
         model = UserModel
         # excluding default django user fields
-        exclude = ['password', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'groups',
-                   'user_permissions', 'first_name', 'last_name', 'photo_url', 'firebase_user_id', 'fcm_token',
-                   'user_type']
+        fields = ['id', 'photo', 'paid', 'progress', 'ranking', 'name', 'email', 'description', 'day_streak',
+                  'max_day_streak',]
 
     def get_photo(self, obj: UserModel):
         if obj.photo:
@@ -29,17 +29,21 @@ class UserModelSerializer(serializers.ModelSerializer):
         all_lessons = Lesson.objects.all().count()
         user_lessons = UserLessonModel.objects.filter(user=obj, completed=True).count()
         if all_lessons == 0:
-            return 1
+            return 1.0
         return user_lessons / all_lessons
+
+    def get_ranking(self, obj: UserModel):
+        return UserModel.objects.filter(points__gt=obj.points).count() + 1
 
 
 class UserModelAsFriendSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
     is_request_pending = serializers.SerializerMethodField()
     photo = serializers.SerializerMethodField()
+    ranking = serializers.SerializerMethodField()
 
     class Meta:
         model = UserModel
-        fields = ['id', 'name', 'photo', 'description', 'day_streak', 'is_request_pending']
+        fields = ['id', 'name', 'photo', 'description', 'max_day_streak', 'is_request_pending', 'ranking']
 
     def get_photo(self, obj: UserModel):
         if obj.photo:
@@ -48,3 +52,6 @@ class UserModelAsFriendSerializer(UserContextNeededSerializer, serializers.Model
 
     def get_is_request_pending(self, obj: UserModel):
         return obj.friendship_requests.filter(id=self.user.id).exists()
+
+    def get_ranking(self, obj: UserModel):
+        return UserModel.objects.filter(points__gt=obj.points).count() + 1
