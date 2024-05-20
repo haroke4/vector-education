@@ -5,16 +5,13 @@ from pathlib import Path
 
 from django.utils import timezone
 
+RUNNING_FROM_DOCKER = os.environ.get('RUNNING_FROM_DOCKER', False)
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # Default User
 AUTH_USER_MODEL = 'api_users.UserModel'
 USERNAME_FIELD = 'email'
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
     "SECRET_KEY", default="django-insecure-3b!7h8__f5e2frki-d&*)gb5y@--&*e&#oh=41y)cq%jwh$g5c")
 
@@ -52,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'backend.middlewares.TokenAuthMiddleware',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -100,7 +96,7 @@ print("Firebase admin is initialized")
 
 # Database
 
-if os.environ.get('RUNNING_FROM_DOCKER', False):
+if RUNNING_FROM_DOCKER:
     print("USING POSTGRESQL DATABASE")
     DATABASES = {
         "default": {
@@ -163,7 +159,7 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 # Logging
 LOGGING = {}
 
-if os.environ.get('RUNNING_FROM_DOCKER', False):
+if RUNNING_FROM_DOCKER:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -223,10 +219,13 @@ CHANNEL_LAYERS = {
     },
 }
 
-if os.environ.get('RUNNING_FROM_DOCKER', False):
+if RUNNING_FROM_DOCKER:
     PROTECTED_MEDIA_ROOT = "/home/app/protected/"
+    PROTECTED_MEDIA_SERVER = "nginx"
 else:
     PROTECTED_MEDIA_ROOT = "%s/protected/" % BASE_DIR
+    PROTECTED_MEDIA_SERVER = "django"
+
 PROTECTED_MEDIA_URL = "/protected"
-PROTECTED_MEDIA_SERVER = "nginx"  # Defaults to "django"
 PROTECTED_MEDIA_LOCATION_PREFIX = "/internal"  # Prefix used in nginx config
+PROTECTED_MEDIA_AS_DOWNLOADS = False

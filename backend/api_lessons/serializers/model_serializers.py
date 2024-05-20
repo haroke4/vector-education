@@ -17,12 +17,13 @@ class LessonMinimalDataSerializer(UserContextNeededSerializer, serializers.Model
             return user_data.completed
         return False
 
-
     def get_friends_count(self, obj: Lesson):
         counter = 0
         for i in self.user.friends.all():
-            if i.lessons.last().lesson == obj:
-                counter += 1
+            last_lesson = i.lessons.last()
+            if last_lesson:
+                if last_lesson.lesson == obj:
+                    counter += 1
         return counter
 
 
