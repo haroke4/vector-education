@@ -14,10 +14,12 @@ class PaginationClass(PageNumberPagination):
 
 
 class GetFriendsView(APIView):
-    def post(self, request: Request):
-        friends = request.user.friends.all()
-        page = PaginationClass().paginate_queryset(friends, request)
-        return success_with_text(UserModelAsFriendSerializer(page, many=True, user=request.user).data)
+    def get(self, request: Request):
+        a = UserModelAsFriendSerializer(request.user.friends.all(), many=True, user=request.user).data
+        b = UserModelAsFriendSerializer(request.user.friendship_requests.all(), many=True, user=request.user).data
+        return success_with_text(
+            {'friends': a, 'pending_requests': b}
+        )
 
 
 class SearchFriendsView(APIView):

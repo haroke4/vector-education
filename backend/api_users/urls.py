@@ -11,7 +11,7 @@ urlpatterns = [
 
     # friends
     path('get_friends/', GetFriendsView.as_view()),
-    path('search_friends/', SearchFriendsView.as_view()),
+    path('search_friends/', SearchFriendsView.as_view()),  # Uses Pagination
     path('add_friend/', AddFriendView.as_view()),
     path('accept_friend/', AcceptFriendRequestView.as_view()),
     path('reject_friend/', DeclineFriendRequestView.as_view()),

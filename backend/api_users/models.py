@@ -1,8 +1,22 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from protected_media.models import ProtectedImageField
 from rest_framework.exceptions import ValidationError
+
+
+@deconstructible
+class PathAndRename(object):
+    def __init__(self, path):
+        self.path = path
+
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        filename = f'{uuid.uuid4()}.{ext}'
+        return f'{self.path}{filename}'
 
 
 class UserTypes:
@@ -29,7 +43,7 @@ class UserModel(AbstractUser):
     name = models.CharField(max_length=255, verbose_name='Имя')
     email = models.EmailField(max_length=255, unique=True, verbose_name='Email')
     description = models.TextField(verbose_name='Описание')
-    photo = ProtectedImageField(upload_to='user_photos/', blank=True, null=True, verbose_name='Фото')
+    photo = ProtectedImageField(upload_to=PathAndRename('user_photos/'), blank=True, null=True, verbose_name='Фото')
     photo_url = models.URLField(blank=True, null=True, verbose_name='Ссылка на фото (Firebase)')
 
     # user social data
@@ -48,8 +62,6 @@ class UserModel(AbstractUser):
     def __str__(self):
         return f'{self.pk} Profile of {self.name}'
 
-
-
     def add_points(self, points: int, description: str):
         if points < 0:
             raise ValueError('Points must be positive')
@@ -64,7 +76,10 @@ class UserModel(AbstractUser):
 
     def send_friend_request(self, to_user):
         if (to_user != self) and (to_user not in self.friends.all()):
-            to_user.friendship_requests.add(self)
+            if self.friendship_requests.filter(pk=to_user.pk).exists():
+                self.accept_friend_request(to_user)
+            else:
+                to_user.friendship_requests.add(self)
 
     def accept_friend_request(self, from_user):
         if from_user in self.friendship_requests.all():
