@@ -1,10 +1,11 @@
+import uuid
+
+from django.utils.deconstruct import deconstructible
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import exception_handler
 from rest_framework import serializers
-
-from api_users.models import UserModel
 
 
 def error_with_text(text):
@@ -24,10 +25,23 @@ def custom_exception_handler(exc, context):
     return response
 
 
+@deconstructible
+class PathAndRename(object):
+    def __init__(self, path):
+        self.path = path
+
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        filename = f'{uuid.uuid4()}.{ext}'
+        return f'{self.path}{filename}'
+
+
 class UserContextNeededSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        from api_users.models import UserModel
+
         if isinstance(user, UserModel):
             if not user.is_authenticated:
                 raise Exception('User must be authenticated')

@@ -30,14 +30,13 @@ class Lesson(models.Model):
     is_available_on_free = models.BooleanField(default=False, verbose_name='Доступен на бесплатном тарифе')
     lesson_batch = models.ForeignKey(LessonBatch, on_delete=models.CASCADE, verbose_name='Коллекция уроков',
                                      related_name='lessons')
-    topic = models.CharField(max_length=200, verbose_name='Тема')
+    title = models.CharField(max_length=200, verbose_name='Тема')
     order = models.IntegerField(verbose_name='Порядок урока в коллекции')
 
     def __str__(self):
-        return f'{self.pk} Lesson: {self.topic} '
+        return f'{self.pk} Lesson: {self.title} '
 
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
         ordering = ['order']
-

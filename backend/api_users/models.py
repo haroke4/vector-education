@@ -1,22 +1,9 @@
-import uuid
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-from django.utils.deconstruct import deconstructible
 from protected_media.models import ProtectedImageField
-from rest_framework.exceptions import ValidationError
 
-
-@deconstructible
-class PathAndRename(object):
-    def __init__(self, path):
-        self.path = path
-
-    def __call__(self, instance, filename):
-        ext = filename.split('.')[-1]
-        filename = f'{uuid.uuid4()}.{ext}'
-        return f'{self.path}{filename}'
+from backend.global_function import PathAndRename
 
 
 class UserTypes:
@@ -34,6 +21,7 @@ class UserTypes:
 
 
 class UserModel(AbstractUser):
+
     user_type = models.CharField(max_length=20, choices=UserTypes.choices(), default=UserTypes.free, )
     blocked = models.BooleanField(default=False)
     firebase_user_id = models.CharField(max_length=200, null=True, blank=True)

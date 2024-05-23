@@ -1,4 +1,3 @@
-from api_users.models import UserModel, UserTypes
 from rest_framework.permissions import IsAuthenticated
 
 
