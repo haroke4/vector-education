@@ -10,6 +10,7 @@ from .__component_base import ComponentBase
 
 class FillTextComponent(ComponentBase):
     title = models.CharField(max_length=200, verbose_name='Заголовок', default='Заполните текст')
+    put_words = models.BooleanField(default=False, verbose_name='Перетаскивание слов')
 
     class Meta:
         verbose_name = 'Заполните текст компонент'
@@ -23,7 +24,6 @@ class FillTextLine(models.Model):
     component = models.ForeignKey(FillTextComponent, on_delete=models.CASCADE, verbose_name='Компонент',
                                   related_name='lines')
     text_before = models.CharField(max_length=10000, verbose_name='Текст', null=True, blank=True)
-    put_words = models.BooleanField(default=False, verbose_name='Подставить слова')
     answer = models.CharField(max_length=2000, verbose_name='Ответ (оставьте пустым если только текст )', null=True,
                               blank=True)
     text_after = models.CharField(max_length=10000, verbose_name='Текст после', null=True, blank=True)
