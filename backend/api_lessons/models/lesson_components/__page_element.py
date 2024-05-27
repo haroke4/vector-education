@@ -49,9 +49,9 @@ def func():
         this_script = this_script[:index + 1]
 
     with open(__file__, 'w') as f:
-        f.write(f"""{''.join(this_script)[:-1]}
+        f.write(f'''{''.join(this_script)[:-1]}
     {'\n\t'.join(code_lines)}
-    """)
+    ''')
 
 
 if __name__ == '__main__':
