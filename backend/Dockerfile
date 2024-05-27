@@ -1,4 +1,4 @@
-FROM python:3.12.2-slim-bullseye
+FROM python:3.12.3-slim-bullseye
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -11,8 +11,8 @@ WORKDIR $HOME
 RUN apt-get update && apt-get install -y gcc netcat
 
 RUN pip install --upgrade pip
-COPY ./req_linux.txt .
-RUN pip install -r req_linux.txt
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
 
 # copy project and collect static files
 COPY . .

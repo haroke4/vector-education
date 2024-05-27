@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_q',
     'rest_framework.authtoken',
-    "api_lessons",
+    'api_lessons',
     "api_users",
     'api_data_collection',
 ]
