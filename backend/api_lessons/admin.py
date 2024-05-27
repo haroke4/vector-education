@@ -1,6 +1,8 @@
 import importlib
 from pprint import pprint
 
+from django.contrib.admin.exceptions import AlreadyRegistered
+
 from api_lessons.models import *
 
 
@@ -111,9 +113,14 @@ for model, inlines in models_with_inlines.items():
             super().__init__(*args, **kwargs)
 
 
+    if issubclass(model, UserModel):
+        continue
+
     admin.site.register(model, ModelAdmin)
 
 for model in models_just_register:
     if model in admin.site._registry:
+        continue
+    if issubclass(model, UserModel):
         continue
     admin.site.register(model, admin.ModelAdmin)

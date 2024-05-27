@@ -3,6 +3,9 @@ from .__component_base import ComponentBase
 
 
 class RecordAudioComponent(ComponentBase):
+    title = models.CharField(max_length=255, verbose_name='Название')
+    description = models.TextField(verbose_name='Описание')
+
     class Meta:
         verbose_name = 'Запись аудио компонент'
         verbose_name_plural = 'Запись аудио компоненты'

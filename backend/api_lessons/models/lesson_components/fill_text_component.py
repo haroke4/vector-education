@@ -5,6 +5,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+from api_users.models import UserModel
 from .__component_base import ComponentBase
 
 
@@ -44,3 +45,17 @@ class FillTextLine(models.Model):
 
     def __str__(self):
         return f'{self.pk} FillTextLineComponent'
+
+
+class UserFillTextAnswer(models.Model):
+    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='fill_text_answers')
+    line = models.ForeignKey(FillTextLine, on_delete=models.CASCADE, verbose_name='Строка', related_name='answers')
+    answer = models.CharField(max_length=2000, verbose_name='Ответ')
+
+    class Meta:
+        verbose_name = 'Ответ на строку компонента заполните текст'
+        verbose_name_plural = 'Ответы на строки компонента заполните текст'
+
+    def __str__(self):
+        return f'{self.pk} UserFillTextAnswer: "{self.answer}"'

@@ -94,7 +94,8 @@ def func():
         code_lines.append(get_serializer_snippet(model, fields))
 
     this_file_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(this_file_dir + '/components_serializers.py', 'w') as f:
+    print('got_u')
+    with open(this_file_dir + '/gen_components_serializers.py', 'w') as f:
         f.write('from api_lessons.models import *\n')
         f.write('from rest_framework import serializers\n\n#auto-generated\n\n')
         f.write(f"""{''.join(code_lines)[:-1]}""")
