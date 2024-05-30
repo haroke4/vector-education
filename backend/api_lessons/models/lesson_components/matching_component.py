@@ -13,6 +13,12 @@ class MatchingComponent(ComponentBase):
     def __str__(self):
         return f'{self.pk} MatchingComponent: "{self.title}"'
 
+    def get_lesson(self):
+        if hasattr(self, 'page_element'):
+            return self.page_element.page.lesson
+        else:
+            return None
+
 
 class MatchingComponentElementCouple(models.Model):
     component = models.ForeignKey(MatchingComponent, on_delete=models.CASCADE, related_name='element_couples',
@@ -44,4 +50,21 @@ class MatchingComponentElement(models.Model):
     def save(self, *args, **kwargs):
         if self.image:
             self.text = ''
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs) 
+
+
+class UserMatchingComponentElementCouple(models.Model):
+    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='matching_element_couples')
+    couple = models.ForeignKey(MatchingComponentElementCouple, on_delete=models.CASCADE, verbose_name='Пара элементов')
+    first_element = models.ForeignKey(MatchingComponentElement, on_delete=models.CASCADE, verbose_name='Первый элемент',
+                                      related_name='user_first_element')
+    second_element = models.ForeignKey(MatchingComponentElement, on_delete=models.CASCADE,
+                                       verbose_name='Второй элемент', related_name='user_second_element')
+
+    class Meta:
+        verbose_name = 'Пара элементов соединения пользователя'
+        verbose_name_plural = 'Пары элементов соединения пользователя'
+
+    def __str__(self):
+        return f'{self.pk} UserMatchingComponentElementCouple'

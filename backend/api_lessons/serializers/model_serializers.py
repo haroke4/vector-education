@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from rest_framework.fields import SkipField
+
 from api_lessons.models import *
-from backend.global_function import UserContextNeededSerializer
+from backend.global_function import UserContextNeededSerializer, NestedSupportedModelSerializer
 from .components_serializers import LessonPageSerializer
 
 
@@ -39,7 +41,7 @@ class LessonBatchSerializer(UserContextNeededSerializer, serializers.ModelSerial
         return LessonMinimalDataSerializer(obj.lessons.all(), user=self.user, many=True).data
 
 
-class LessonSerializer(UserContextNeededSerializer, serializers.ModelSerializer):
+class LessonSerializer(NestedSupportedModelSerializer):
     pages = LessonPageSerializer(many=True)
 
     class Meta:

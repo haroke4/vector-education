@@ -13,9 +13,16 @@ class RecordAudioComponent(ComponentBase):
     def __str__(self):
         return f'{self.pk} RecordAudioComponent '
 
+    def get_lesson(self):
+        if hasattr(self, 'page_element'):
+            return self.page_element.page.lesson
+        else:
+            return None
+
 
 class UserRecordAudioComponent(models.Model):
-    auto_gen_serializer = False
+    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='record_audio_components')
     component = models.ForeignKey(RecordAudioComponent, on_delete=models.CASCADE, verbose_name='Компонент',
                                   related_name='user_records')
     file = models.FileField(upload_to='audio/', verbose_name='Аудио файл')

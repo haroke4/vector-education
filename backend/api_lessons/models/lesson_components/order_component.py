@@ -12,6 +12,12 @@ class PutInOrderComponent(ComponentBase):
     def __str__(self):
         return f'{self.pk} PutInOrderComponent: "{self.title}"'
 
+    def get_lesson(self):
+        if hasattr(self, 'page_element'):
+            return self.page_element.page.lesson
+        else:
+            return None
+
 
 class PutInOrderComponentElement(models.Model):
     component = models.ForeignKey(PutInOrderComponent, on_delete=models.CASCADE, related_name='elements',
@@ -33,3 +39,26 @@ class PutInOrderComponentElement(models.Model):
 
     def __str__(self):
         return f'{self.pk} PutInOrderComponentElement: "{self.text}"'
+
+
+class UserPutInOrderAnswer(models.Model):
+    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
+                             related_name='put_in_order_answers')
+    element = models.ForeignKey(PutInOrderComponentElement, on_delete=models.CASCADE, verbose_name='Элемент',
+                                related_name='answers')
+    order = models.PositiveIntegerField(verbose_name='Порядок')
+
+    class Meta:
+        verbose_name = 'Ответ на элемент компонента поставьте в правильном порядке'
+        verbose_name_plural = 'Ответы на элементы компонента поставьте в правильном порядке'
+
+    def save(self, *args, **kwargs):
+        query = self.element.answers.filter(order=self.order)
+        if self.pk:
+            query = query.exclude(pk=self.pk)
+        if query.exists():
+            raise ValueError('Order must be unique in element')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.pk} UserPutInOrderAnswer: "{self.order}"'

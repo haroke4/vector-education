@@ -40,3 +40,6 @@ class Lesson(models.Model):
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
         ordering = ['order']
+
+    def is_available_for_user(self, user: UserModel) -> bool:
+        return self.is_available_on_free or user.is_paid()

@@ -3,6 +3,7 @@ from typing import Type
 from django.contrib import admin
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from api_users.models import UserModel
@@ -20,6 +21,12 @@ class FillTextComponent(ComponentBase):
     def __str__(self):
         return f'{self.pk} FillTextComponent: "{self.title}"'
 
+    def get_lesson(self):
+        if hasattr(self, 'page_element'):
+            print('alee')
+            return self.page_element.page.lesson
+        else:
+            return None
 
 class FillTextLine(models.Model):
     component = models.ForeignKey(FillTextComponent, on_delete=models.CASCADE, verbose_name='Компонент',
@@ -37,8 +44,6 @@ class FillTextLine(models.Model):
     def save(self, *args, **kwargs):
         if self.component.lines.filter(order=self.order).exclude(pk=self.pk).exists():
             raise ValueError('Order must be unique in component')
-        if self.put_words and not self.answer:
-            raise ValueError('Answer must be filled if put_words is True')
         if not self.text_after and not self.text_before:
             raise ValueError('At least one of text_before or text_after must be filled')
         super().save(*args, **kwargs)
@@ -52,6 +57,8 @@ class UserFillTextAnswer(models.Model):
                              related_name='fill_text_answers')
     line = models.ForeignKey(FillTextLine, on_delete=models.CASCADE, verbose_name='Строка', related_name='answers')
     answer = models.CharField(max_length=2000, verbose_name='Ответ')
+
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
 
     class Meta:
         verbose_name = 'Ответ на строку компонента заполните текст'

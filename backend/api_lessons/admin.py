@@ -82,6 +82,8 @@ for model_file in model_files:
                 continue
             just_model = True
             for field in attr._meta.fields:
+                if issubclass(attr, UserMatchingComponentElementCouple):
+                    continue
                 if type(field) is models.ForeignKey:
                     if field.related_model in models_with_inlines:
                         continue

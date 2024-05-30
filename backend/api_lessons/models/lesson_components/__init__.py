@@ -20,7 +20,6 @@ except ImportError:
 try:
     from .__component_base import *
     from .__page_element import *
-    from .__page_element_generator import *
     from .audio_component import *
     from .blue_card_component import *
     from .fill_text_component import *

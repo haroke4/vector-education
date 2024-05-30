@@ -1,87 +1,108 @@
 from api_lessons.models import *
 from rest_framework import serializers
+from backend.global_function import ModelIntegerField, NestedSupportedModelSerializer
 
 
-# auto-generated
+class FillTextLineSerializer(NestedSupportedModelSerializer):
+    component = ModelIntegerField(source='component.id', model=FillTextComponent)
+    user_answer = serializers.SerializerMethodField()
 
-
-class FillTextLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = FillTextLine
         fields = '__all__'
 
+    def get_user_answer(self, obj):
+        user_answer = UserFillTextAnswer.objects.filter(user=self.context['user'], line=obj).first()
+        return user_answer.answer if user_answer else None
 
-class AudioComponentSerializer(serializers.ModelSerializer):
+
+class AudioComponentSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = AudioComponent
         fields = '__all__'
 
 
-class RecordAudioComponentSerializer(serializers.ModelSerializer):
+class RecordAudioComponentSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = RecordAudioComponent
         fields = '__all__'
 
 
-class PutInOrderComponentElementSerializer(serializers.ModelSerializer):
+class PutInOrderComponentElementSerializer(NestedSupportedModelSerializer):
+    component = ModelIntegerField(source='component.id', model=PutInOrderComponent)
+    user_answer = serializers.SerializerMethodField()
+
     class Meta:
         model = PutInOrderComponentElement
         fields = '__all__'
 
+    def get_user_answer(self, obj):
+        user_answer = UserPutInOrderAnswer.objects.filter(user=self.context['user'], element=obj).first()
+        return user_answer.order if user_answer else None
 
-class MatchingComponentElementSerializer(serializers.ModelSerializer):
+
+class MatchingComponentElementSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = MatchingComponentElement
         fields = '__all__'
 
 
-class TextComponentSerializer(serializers.ModelSerializer):
+class TextComponentSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = TextComponent
         fields = '__all__'
 
 
-class VideoComponentSerializer(serializers.ModelSerializer):
+class VideoComponentSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = VideoComponent
         fields = '__all__'
 
 
-class QuestionAnswerSerializer(serializers.ModelSerializer):
+class QuestionAnswerSerializer(NestedSupportedModelSerializer):
+    question = ModelIntegerField(source='question.id', model=QuestionComponent)
+    pressed = serializers.SerializerMethodField()
+
     class Meta:
         model = QuestionAnswer
         fields = '__all__'
 
-
-class ContentTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContentType
-        fields = '__all__'
+    def get_pressed(self, obj):
+        user_answer = UserQuestionAnswer.objects.filter(user=self.context['user'], answer=obj).first()
+        return user_answer is not None
 
 
-class BlueCardComponentSerializer(serializers.ModelSerializer):
+class BlueCardComponentSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = BlueCardComponent
         fields = '__all__'
 
 
-class ImageComponentSerializer(serializers.ModelSerializer):
+class ImageComponentSerializer(NestedSupportedModelSerializer):
     class Meta:
         model = ImageComponent
         fields = '__all__'
 
 
-class MatchingComponentElementCoupleSerializer(serializers.ModelSerializer):
+class MatchingComponentElementCoupleSerializer(NestedSupportedModelSerializer):
     first_element = MatchingComponentElementSerializer(many=False)
-
     second_element = MatchingComponentElementSerializer(many=False)
+    component = ModelIntegerField(source='component.id', model=MatchingComponent)
+    user_answer = serializers.SerializerMethodField()
 
     class Meta:
         model = MatchingComponentElementCouple
         fields = '__all__'
 
+    def get_user_answer(self, obj):
+        user_answer = UserMatchingComponentElementCouple.objects.filter(user=self.context['user'], couple=obj).first()
+        return {
+            'first_element': user_answer.first_element.id if user_answer else None,
+            'second_element': user_answer.second_element.id if user_answer else None
+        }
 
-class MatchingComponentSerializer(serializers.ModelSerializer):
+
+class MatchingComponentSerializer(NestedSupportedModelSerializer):
     element_couples = MatchingComponentElementCoupleSerializer(many=True)
 
     class Meta:
@@ -89,7 +110,7 @@ class MatchingComponentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FillTextComponentSerializer(serializers.ModelSerializer):
+class FillTextComponentSerializer(NestedSupportedModelSerializer):
     lines = FillTextLineSerializer(many=True)
 
     class Meta:
@@ -97,7 +118,7 @@ class FillTextComponentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PutInOrderComponentSerializer(serializers.ModelSerializer):
+class PutInOrderComponentSerializer(NestedSupportedModelSerializer):
     elements = PutInOrderComponentElementSerializer(many=True)
 
     class Meta:
@@ -105,7 +126,7 @@ class PutInOrderComponentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class QuestionComponentSerializer(serializers.ModelSerializer):
+class QuestionComponentSerializer(NestedSupportedModelSerializer):
     answers = QuestionAnswerSerializer(many=True)
 
     class Meta:
@@ -113,34 +134,28 @@ class QuestionComponentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class LessonPageElementSerializer(serializers.ModelSerializer):
-    blue_card_component = BlueCardComponentSerializer(many=False)
+class LessonPageElementSerializer(NestedSupportedModelSerializer):
+    blue_card_component = BlueCardComponentSerializer(many=False, allow_null=True, required=False)
+    audio_component = AudioComponentSerializer(many=False, allow_null=True, required=False)
+    matching_component = MatchingComponentSerializer(many=False, allow_null=True, required=False)
+    record_audio_component = RecordAudioComponentSerializer(many=False, allow_null=True, required=False)
+    video_component = VideoComponentSerializer(many=False, allow_null=True, required=False)
+    put_in_order_component = PutInOrderComponentSerializer(many=False, allow_null=True, required=False)
+    text_component = TextComponentSerializer(many=False, allow_null=True, required=False)
+    fill_text_component = FillTextComponentSerializer(many=False, allow_null=True, required=False)
+    question_component = QuestionComponentSerializer(many=False, allow_null=True, required=False)
+    image_component = ImageComponentSerializer(many=False, allow_null=True, required=False)
 
-    audio_component = AudioComponentSerializer(many=False)
-
-    matching_component = MatchingComponentSerializer(many=False)
-
-    record_audio_component = RecordAudioComponentSerializer(many=False)
-
-    video_component = VideoComponentSerializer(many=False)
-
-    put_in_order_component = PutInOrderComponentSerializer(many=False)
-
-    text_component = TextComponentSerializer(many=False)
-
-    fill_text_component = FillTextComponentSerializer(many=False)
-
-    question_component = QuestionComponentSerializer(many=False)
-
-    image_component = ImageComponentSerializer(many=False)
+    page = ModelIntegerField(source='page.id', model=LessonPage)
 
     class Meta:
         model = LessonPageElement
         fields = '__all__'
 
 
-class LessonPageSerializer(serializers.ModelSerializer):
+class LessonPageSerializer(NestedSupportedModelSerializer):
     elements = LessonPageElementSerializer(many=True)
+    lesson = ModelIntegerField(source='lesson.id', model=Lesson)
 
     class Meta:
         model = LessonPage
