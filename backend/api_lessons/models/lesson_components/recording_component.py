@@ -1,4 +1,7 @@
 from django.db import models
+from protected_media.models import ProtectedFileField
+
+from backend.global_function import PathAndRename
 from .__component_base import ComponentBase
 
 
@@ -25,12 +28,12 @@ class UserRecordAudioComponent(models.Model):
                              related_name='record_audio_components')
     component = models.ForeignKey(RecordAudioComponent, on_delete=models.CASCADE, verbose_name='Компонент',
                                   related_name='user_records')
-    file = models.FileField(upload_to='audio/', verbose_name='Аудио файл')
+    file = ProtectedFileField(upload_to=PathAndRename(path='record_component_answer/'), verbose_name='Аудио файл')
     teacher_comment = models.TextField(verbose_name='Комментарий учителя', blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Записи пользователей аудио компонент'
-        verbose_name_plural = 'Записи пользователей аудио компоненты'
+        verbose_name = '[Ответ] Аудио компонент'
+        verbose_name_plural = '[Ответ] Аудио компоненты'
 
     def __str__(self):
-        return f'{self.pk} UserRecordAudioComponent: "{self.title}"'
+        return f'{self.pk} UserRecordAudioComponent'

@@ -1,5 +1,8 @@
+from django.utils import timezone
 from protected_media.models import ProtectedImageField
 from django.db import models
+
+from backend.global_function import PathAndRename
 from .__component_base import ComponentBase
 
 
@@ -38,7 +41,7 @@ class MatchingComponentElementCouple(models.Model):
 
 class MatchingComponentElement(models.Model):
     text = models.CharField(max_length=200, verbose_name='Текст элемента')
-    image = ProtectedImageField(upload_to='matching_elements/', blank=True, null=True, verbose_name='Изображение')
+    image = ProtectedImageField(upload_to=PathAndRename('matching_elements/'), blank=True, null=True, verbose_name='Изображение')
 
     class Meta:
         verbose_name = 'Элемент соединения'
@@ -50,7 +53,7 @@ class MatchingComponentElement(models.Model):
     def save(self, *args, **kwargs):
         if self.image:
             self.text = ''
-        super().save(*args, **kwargs) 
+        super().save(*args, **kwargs)
 
 
 class UserMatchingComponentElementCouple(models.Model):
@@ -59,12 +62,11 @@ class UserMatchingComponentElementCouple(models.Model):
     couple = models.ForeignKey(MatchingComponentElementCouple, on_delete=models.CASCADE, verbose_name='Пара элементов')
     first_element = models.ForeignKey(MatchingComponentElement, on_delete=models.CASCADE, verbose_name='Первый элемент',
                                       related_name='user_first_element')
-    second_element = models.ForeignKey(MatchingComponentElement, on_delete=models.CASCADE,
-                                       verbose_name='Второй элемент', related_name='user_second_element')
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
 
     class Meta:
-        verbose_name = 'Пара элементов соединения пользователя'
-        verbose_name_plural = 'Пары элементов соединения пользователя'
+        verbose_name = '[Ответ] Пара элементов соединения'
+        verbose_name_plural = '[Ответ] Пары элементов соединения'
 
     def __str__(self):
         return f'{self.pk} UserMatchingComponentElementCouple'

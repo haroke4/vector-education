@@ -11,7 +11,7 @@ from .__component_base import ComponentBase
 
 class AudioComponent(ComponentBase):
     title = models.CharField(max_length=200, verbose_name='Заголовок', default='Аудио')
-    audio = ProtectedFileField(upload_to=PathAndRename('audio/'), verbose_name='Аудио файл')
+    audio = ProtectedFileField(upload_to=PathAndRename('audio_components/'), verbose_name='Аудио файл')
 
     class Meta:
         verbose_name = 'Аудио компонент'

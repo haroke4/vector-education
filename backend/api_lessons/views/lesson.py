@@ -32,18 +32,16 @@ class GetLessonView(APIView):
         return success_with_text(LessonSerializer(lesson, context={'user': user}).data)
 
 
-class AnswerToQuestionView(APIView):
-    def post(self, request):
-        serializer = AnswerToQuestionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        answer: QuestionAnswer = serializer.validated_data['answer_id']
-        user: UserModel = request.user
-
-        if not user.is_paid() and not answer.question.lesson.is_available_on_free:
-            return error_with_text('lesson_not_available')
-        # if answer.is_correct:
-        #     UserQuestionModel.objects.get_or_create(user=user, question=answer.question)
-        return success_with_text({'is_correct': answer.is_correct})
+class CheckLessonForEnding(APIView):
+    def post(self, request: Request):
+        serializer = GetLessonById(data=request.data)
+        lesson: Lesson = serializer.validated_data['lesson_id']
+        if lesson.is_lesson_done_for_user(request.user):
+            user_lesson = UserLessonModel.objects.get_or_create(user=request.user, lesson=lesson)
+            user_lesson.completed = True
+            user_lesson.save()
+            return success_with_text('lesson_done')
+        return error_with_text('lesson_not_done')
 
 
 class AddLessonToBatchView(APIView):

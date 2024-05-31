@@ -23,10 +23,9 @@ class FillTextComponent(ComponentBase):
 
     def get_lesson(self):
         if hasattr(self, 'page_element'):
-            print('alee')
             return self.page_element.page.lesson
-        else:
-            return None
+        return None
+
 
 class FillTextLine(models.Model):
     component = models.ForeignKey(FillTextComponent, on_delete=models.CASCADE, verbose_name='Компонент',
@@ -61,8 +60,8 @@ class UserFillTextAnswer(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
 
     class Meta:
-        verbose_name = 'Ответ на строку компонента заполните текст'
-        verbose_name_plural = 'Ответы на строки компонента заполните текст'
+        verbose_name = '[Ответ] Строка компонента заполните текст'
+        verbose_name_plural = '[Ответы] Строки компонента заполните текст'
 
     def __str__(self):
         return f'{self.pk} UserFillTextAnswer: "{self.answer}"'

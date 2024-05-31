@@ -12,7 +12,7 @@ class FillTextLineSerializer(NestedSupportedModelSerializer):
         fields = '__all__'
 
     def get_user_answer(self, obj):
-        user_answer = UserFillTextAnswer.objects.filter(user=self.context['user'], line=obj).first()
+        user_answer = UserFillTextAnswer.objects.filter(user=self.context['user'], line=obj).last()
         return user_answer.answer if user_answer else None
 
 
@@ -22,10 +22,22 @@ class AudioComponentSerializer(NestedSupportedModelSerializer):
         fields = '__all__'
 
 
+class UserRecordAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRecordAudioComponent
+        fields = ['file', 'teacher_comment']
+
+
 class RecordAudioComponentSerializer(NestedSupportedModelSerializer):
+    user_answer = serializers.SerializerMethodField()
+
     class Meta:
         model = RecordAudioComponent
         fields = '__all__'
+
+    def get_user_answer(self, obj):
+        user_answer = UserRecordAudioComponent.objects.filter(user=self.context['user'], component=obj).first()
+        return UserRecordAnswerSerializer(user_answer).data if user_answer else None
 
 
 class PutInOrderComponentElementSerializer(NestedSupportedModelSerializer):
@@ -88,18 +100,15 @@ class MatchingComponentElementCoupleSerializer(NestedSupportedModelSerializer):
     first_element = MatchingComponentElementSerializer(many=False)
     second_element = MatchingComponentElementSerializer(many=False)
     component = ModelIntegerField(source='component.id', model=MatchingComponent)
-    user_answer = serializers.SerializerMethodField()
+    user_first_element_id = serializers.SerializerMethodField()
 
     class Meta:
         model = MatchingComponentElementCouple
         fields = '__all__'
 
-    def get_user_answer(self, obj):
-        user_answer = UserMatchingComponentElementCouple.objects.filter(user=self.context['user'], couple=obj).first()
-        return {
-            'first_element': user_answer.first_element.id if user_answer else None,
-            'second_element': user_answer.second_element.id if user_answer else None
-        }
+    def get_user_first_element_id(self, obj):
+        user_answer = UserMatchingComponentElementCouple.objects.filter(user=self.context['user'], couple=obj).last()
+        return user_answer.first_element.id if user_answer else None
 
 
 class MatchingComponentSerializer(NestedSupportedModelSerializer):

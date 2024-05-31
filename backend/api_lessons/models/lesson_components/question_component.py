@@ -41,8 +41,8 @@ class UserQuestionAnswer(models.Model):
     answer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE, verbose_name='Ответ')
 
     class Meta:
-        verbose_name = 'Ответ на вопрос пользователя'
-        verbose_name_plural = 'Ответы на вопросы пользователя'
+        verbose_name = '[Ответ] Вопрос компонент'
+        verbose_name_plural = '[Ответы] Вопросы компонент'
 
     def __str__(self):
-        return f'{self.pk} UserQuestionAnswer: "{self.answer.text}"'
+        return f'{self.pk} UserQuestionAnswer: '

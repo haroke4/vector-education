@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+
 from .__component_base import ComponentBase
 
 
@@ -47,10 +49,11 @@ class UserPutInOrderAnswer(models.Model):
     element = models.ForeignKey(PutInOrderComponentElement, on_delete=models.CASCADE, verbose_name='Элемент',
                                 related_name='answers')
     order = models.PositiveIntegerField(verbose_name='Порядок')
+    created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
 
     class Meta:
-        verbose_name = 'Ответ на элемент компонента поставьте в правильном порядке'
-        verbose_name_plural = 'Ответы на элементы компонента поставьте в правильном порядке'
+        verbose_name = '[Ответ] Элемент компонента поставьте в правильном порядке'
+        verbose_name_plural = '[Ответы] Элементы компонента поставьте в правильном порядке'
 
     def save(self, *args, **kwargs):
         query = self.element.answers.filter(order=self.order)

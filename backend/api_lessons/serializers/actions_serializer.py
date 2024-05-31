@@ -3,17 +3,14 @@ from api_lessons.models import *
 
 
 class AnswerToQuestionSerializer(serializers.Serializer):
-    class Temp(serializers.Serializer):
-        answer_id = serializers.IntegerField()
+    answer_id = serializers.IntegerField()
 
-        def validate_answer_id(self, answer_id):
-            try:
-                answer = QuestionAnswer.objects.get(id=answer_id)
-            except QuestionAnswer.DoesNotExist:
-                raise serializers.ValidationError('Answer does not exist')
-            return answer
-
-    answers = Temp(many=True)
+    def validate_answer_id(self, answer_id):
+        try:
+            answer = QuestionAnswer.objects.get(id=answer_id)
+        except QuestionAnswer.DoesNotExist:
+            raise serializers.ValidationError('Answer does not exist')
+        return answer
 
 
 class AnswerToFillTextSerializer(serializers.Serializer):

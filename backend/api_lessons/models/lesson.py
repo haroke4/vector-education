@@ -43,3 +43,29 @@ class Lesson(models.Model):
 
     def is_available_for_user(self, user: UserModel) -> bool:
         return self.is_available_on_free or user.is_paid()
+
+    def is_lesson_done_for_user(self, user: UserModel) -> bool:
+        from .lesson_components.fill_text_component import FillTextLine
+        from .lesson_components.matching_component import MatchingComponentElementCouple
+        from .lesson_components.order_component import PutInOrderComponentElement
+        from .lesson_components.question_component import QuestionAnswer
+        from .lesson_components.recording_component import RecordAudioComponent
+
+        components = [
+            (FillTextLine, 'answers'),
+            (MatchingComponentElementCouple, 'user_couples'),
+            (PutInOrderComponentElement, 'answers'),
+            (QuestionAnswer, 'user_answers'),
+            (RecordAudioComponent, 'user_recordings'),
+        ]
+
+        for component, related_name in components:
+            if not self._is_component_done_for_user(component, related_name, user):
+                return False
+
+        return True
+
+    def _is_component_done_for_user(self, component, related_name, user):
+        this_lesson_components = component.objects.filter(component__page_element__page__lesson=self)
+        components_answered_by_user = this_lesson_components.filter(**{related_name: user})
+        return components_answered_by_user.count() >= this_lesson_components.count()
