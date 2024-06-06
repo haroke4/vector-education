@@ -43,8 +43,6 @@ class FillTextLine(models.Model):
     def save(self, *args, **kwargs):
         if self.component.lines.filter(order=self.order).exclude(pk=self.pk).exists():
             raise ValueError('Order must be unique in component')
-        if not self.text_after and not self.text_before:
-            raise ValueError('At least one of text_before or text_after must be filled')
         super().save(*args, **kwargs)
 
     def __str__(self):
