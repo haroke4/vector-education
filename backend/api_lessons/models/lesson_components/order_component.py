@@ -25,7 +25,7 @@ class PutInOrderComponentElement(models.Model):
     component = models.ForeignKey(PutInOrderComponent, on_delete=models.CASCADE, related_name='elements',
                                   verbose_name='Компонент')
     text = models.CharField(max_length=200, verbose_name='Текст элемента')
-    order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
+    order = models.PositiveIntegerField(verbose_name='Порядок')
 
     class Meta:
         verbose_name = 'Элемент компонента поставьте в правильном порядке'

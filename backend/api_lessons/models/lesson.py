@@ -23,7 +23,7 @@ class LessonBatch(models.Model):
 
     class Meta:
         verbose_name = 'Коллекция уроков'
-        verbose_name_plural = 'Коллекции уроков'
+        verbose_name_plural = '1 Коллекции уроков'
 
 
 class Lesson(models.Model):
@@ -38,7 +38,7 @@ class Lesson(models.Model):
 
     class Meta:
         verbose_name = 'Урок'
-        verbose_name_plural = 'Уроки'
+        verbose_name_plural = '2 Уроки'
         ordering = ['order']
 
     def is_available_for_user(self, user: UserModel) -> bool:
