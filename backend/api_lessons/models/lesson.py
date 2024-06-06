@@ -48,24 +48,31 @@ class Lesson(models.Model):
         from .lesson_components.fill_text_component import FillTextLine
         from .lesson_components.matching_component import MatchingComponentElementCouple
         from .lesson_components.order_component import PutInOrderComponentElement
-        from .lesson_components.question_component import QuestionAnswer
-        from .lesson_components.recording_component import RecordAudioComponent
+        from .lesson_components.recording_component import UserRecordAudioComponent
 
         components = [
-            (FillTextLine, 'answers'),
-            (MatchingComponentElementCouple, 'user_couples'),
-            (PutInOrderComponentElement, 'answers'),
-            (QuestionAnswer, 'user_answers'),
-            (RecordAudioComponent, 'user_recordings'),
+            (FillTextLine, 'answers__user'),
+            (MatchingComponentElementCouple, 'user_couples__user'),
+            (PutInOrderComponentElement, 'answers__user'),
+            (UserRecordAudioComponent, 'user'),
         ]
 
         for component, related_name in components:
             if not self._is_component_done_for_user(component, related_name, user):
                 return False
 
+        from .lesson_components.question_component import QuestionAnswer, QuestionComponent
+        this_lesson_questions = QuestionComponent.objects.filter(page_element__page__lesson=self)
+        questions_answered_by_user = QuestionAnswer.objects.filter(component__in=this_lesson_questions,
+                                                                   user_answers__user=user, is_correct=True)
+        if questions_answered_by_user.count() < this_lesson_questions.count():
+            return False
+
+
         return True
 
     def _is_component_done_for_user(self, component, related_name, user):
         this_lesson_components = component.objects.filter(component__page_element__page__lesson=self)
         components_answered_by_user = this_lesson_components.filter(**{related_name: user})
+        print(this_lesson_components.count(), components_answered_by_user.count())
         return components_answered_by_user.count() >= this_lesson_components.count()

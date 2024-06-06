@@ -35,9 +35,10 @@ class GetLessonView(APIView):
 class CheckLessonForEnding(APIView):
     def post(self, request: Request):
         serializer = GetLessonById(data=request.data)
+        serializer.is_valid(raise_exception=True)
         lesson: Lesson = serializer.validated_data['lesson_id']
         if lesson.is_lesson_done_for_user(request.user):
-            user_lesson = UserLessonModel.objects.get_or_create(user=request.user, lesson=lesson)
+            user_lesson = UserLessonModel.objects.get_or_create(user=request.user, lesson=lesson)[0]
             user_lesson.completed = True
             user_lesson.save()
             return success_with_text('lesson_done')

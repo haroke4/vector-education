@@ -22,8 +22,8 @@ class QuestionComponent(ComponentBase):
 
 
 class QuestionAnswer(models.Model):
-    question = models.ForeignKey(QuestionComponent, on_delete=models.CASCADE, verbose_name='Вопрос',
-                                 related_name='answers')
+    component = models.ForeignKey(QuestionComponent, on_delete=models.CASCADE, verbose_name='Вопрос',
+                                  related_name='answers')
     text = models.CharField(max_length=2000, verbose_name='Ответ')
     is_correct = models.BooleanField(default=False, verbose_name='Правильный ответ')
 
@@ -38,7 +38,8 @@ class QuestionAnswer(models.Model):
 class UserQuestionAnswer(models.Model):
     user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='question_answers')
-    answer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE, verbose_name='Ответ')
+    answer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE, verbose_name='Ответ',
+                               related_name='user_answers')
 
     class Meta:
         verbose_name = '[Ответ] Вопрос компонент'

@@ -34,7 +34,7 @@ class FillTextLine(models.Model):
     answer = models.CharField(max_length=2000, verbose_name='Ответ (оставьте пустым если только текст )', null=True,
                               blank=True)
     text_after = models.CharField(max_length=10000, verbose_name='Текст после', null=True, blank=True)
-    order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
+    order = models.PositiveIntegerField(verbose_name='Порядок')
 
     class Meta:
         verbose_name = 'Строка компонента заполните текст'

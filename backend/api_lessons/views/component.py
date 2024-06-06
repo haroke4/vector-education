@@ -87,7 +87,7 @@ class AnswerQuestionComponentView(BaseAnswerComponentView):
         serializer.is_valid(raise_exception=True)
         user = request.user
         answer: QuestionAnswer = serializer.validated_data['answer_id']
-        lesson = answer.question.get_lesson()
+        lesson = answer.component.get_lesson()
 
         self.check_lesson(lesson=lesson, user=user)
 

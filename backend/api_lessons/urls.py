@@ -4,6 +4,7 @@ from .views import *
 urlpatterns = [
     path('get_lesson_batch/', GetLessonsBatchView.as_view()),
     path('get_lesson/', GetLessonView.as_view()),
+    path('check_lesson_for_ending/', CheckLessonForEnding.as_view()),
 
     #
     path('add_lesson/', AddLessonToBatchView.as_view()),

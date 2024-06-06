@@ -59,7 +59,8 @@ class MatchingComponentElement(models.Model):
 class UserMatchingComponentElementCouple(models.Model):
     user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='matching_element_couples')
-    couple = models.ForeignKey(MatchingComponentElementCouple, on_delete=models.CASCADE, verbose_name='Пара элементов')
+    couple = models.ForeignKey(MatchingComponentElementCouple, on_delete=models.CASCADE, verbose_name='Пара элементов',
+                               related_name='user_couples')
     first_element = models.ForeignKey(MatchingComponentElement, on_delete=models.CASCADE, verbose_name='Первый элемент',
                                       related_name='user_first_element')
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата создания')
