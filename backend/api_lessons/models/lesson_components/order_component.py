@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 from .__component_base import ComponentBase
 
@@ -54,14 +55,6 @@ class UserPutInOrderAnswer(models.Model):
     class Meta:
         verbose_name = '[Ответ] Элемент компонента поставьте в правильном порядке'
         verbose_name_plural = '[Ответы] Элементы компонента поставьте в правильном порядке'
-
-    def save(self, *args, **kwargs):
-        query = self.element.answers.filter(order=self.order)
-        if self.pk:
-            query = query.exclude(pk=self.pk)
-        if query.exists():
-            raise ValueError('Order must be unique in element')
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.pk} UserPutInOrderAnswer: "{self.order}"'

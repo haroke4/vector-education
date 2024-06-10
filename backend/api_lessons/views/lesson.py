@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from api_lessons.models import *
 from api_lessons.serializers import *
 from api_lessons.serializers import *
+from api_users.serializers import UserModelSerializer
 from backend.global_function import *
 
 
@@ -37,12 +38,13 @@ class CheckLessonForEnding(APIView):
         serializer = GetLessonById(data=request.data)
         serializer.is_valid(raise_exception=True)
         lesson: Lesson = serializer.validated_data['lesson_id']
-        if lesson.is_lesson_done_for_user(request.user):
+        ans = lesson.is_lesson_done_for_user(request.user)
+        if ans == 'ok':
             user_lesson = UserLessonModel.objects.get_or_create(user=request.user, lesson=lesson)[0]
             user_lesson.completed = True
             user_lesson.save()
-            return success_with_text('lesson_done')
-        return error_with_text('lesson_not_done')
+            return success_with_text(UserModelSerializer(request.user).data)
+        return error_with_text(ans)
 
 
 class AddLessonToBatchView(APIView):
