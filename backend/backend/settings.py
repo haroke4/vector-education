@@ -36,8 +36,9 @@ INSTALLED_APPS = [
     'django_q',
     'rest_framework.authtoken',
     'api_lessons',
-    "api_users",
+    'api_users',
     'api_data_collection',
+    'api_global_event'
 ]
 
 MIDDLEWARE = [

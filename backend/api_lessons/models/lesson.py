@@ -77,6 +77,6 @@ class Lesson(models.Model):
     def _is_component_done_for_user(self, component, related_name, user):
         this_lesson_components = component.objects.filter(component__page_element__page__lesson=self)
         components_answered_by_user = this_lesson_components.filter(**{related_name: user})
-        print(component, related_name)
-        print(this_lesson_components.count(), components_answered_by_user.count())
+        # print(component, related_name)
+        # print(this_lesson_components.count(), components_answered_by_user.count())
         return components_answered_by_user.count() >= this_lesson_components.count()

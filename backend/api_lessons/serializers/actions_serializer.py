@@ -16,7 +16,7 @@ class AnswerToQuestionSerializer(serializers.Serializer):
 class AnswerToFillTextSerializer(serializers.Serializer):
     class Temp(serializers.Serializer):
         line_id = serializers.IntegerField()
-        answer = serializers.CharField()
+        answer = serializers.CharField(allow_blank=True)
 
         def validate_line_id(self, line_id):
             try:
