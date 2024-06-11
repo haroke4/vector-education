@@ -42,7 +42,7 @@ class UpdateDayStreak(APIView):
         user: UserModel = request.user
 
         today = timezone.now()
-        last_active_date = user.activity_dates.last()
+        last_active_date = user.activity_dates.first()
 
         # Если пользователь никогда не заходил, то ставим вчерашнюю дату
         if last_active_date is None:
