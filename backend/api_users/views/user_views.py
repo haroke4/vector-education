@@ -59,8 +59,8 @@ class UpdateDayStreak(APIView):
             return error_with_text('Too late to update activity date, login again')
 
         # Логика самого day streak
-        difference = (today.date() - last_active_date).hours
-        if difference < 24:
+        difference = (today.date() - last_active_date).seconds
+        if difference < 3600 * 24:
             return error_with_text('Already updated today')
 
         user.day_streak += 1
