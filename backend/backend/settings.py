@@ -230,3 +230,8 @@ else:
 PROTECTED_MEDIA_URL = "/protected"
 PROTECTED_MEDIA_LOCATION_PREFIX = "/internal"  # Prefix used in nginx config
 PROTECTED_MEDIA_AS_DOWNLOADS = False
+
+# vimeo
+
+VIMEO_ACCESS_TOKEN = os.environ.get("VIMEO_ACCESS_TOKEN", '3a666c6de34f774d71d2fcc0615deb24')
+print(VIMEO_ACCESS_TOKEN)

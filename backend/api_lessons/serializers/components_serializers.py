@@ -66,9 +66,14 @@ class TextComponentSerializer(NestedSupportedModelSerializer):
 
 
 class VideoComponentSerializer(NestedSupportedModelSerializer):
+    video_url = serializers.SerializerMethodField()
+
     class Meta:
         model = VideoComponent
         fields = '__all__'
+
+    def get_video_url(self, obj):
+        return get_video_link_from_vimeo(obj.video_url)
 
 
 class QuestionAnswerSerializer(NestedSupportedModelSerializer):
