@@ -47,6 +47,7 @@ class UserPutInOrderAnswer(models.Model):
     class Meta:
         verbose_name = '[Ответ] Элемент компонента поставьте в правильном порядке'
         verbose_name_plural = '[Ответы] Элементы компонента поставьте в правильном порядке'
+        ordering = ['order']
 
     def __str__(self):
         return f'{self.pk} UserPutInOrderAnswer: "{self.order}"'

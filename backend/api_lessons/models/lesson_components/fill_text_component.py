@@ -39,6 +39,7 @@ class FillTextLine(models.Model):
     class Meta:
         verbose_name = 'Строка компонента заполните текст'
         verbose_name_plural = 'Строки компонента заполните текст'
+        ordering = ['order']
 
     def __str__(self):
         return f'{self.pk} FillTextLineComponent'

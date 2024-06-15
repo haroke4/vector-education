@@ -13,8 +13,6 @@ class LessonPageElement(models.Model):
     def __str__(self):
         return f'{self.pk} LessonPageElement'
 
-
-
     page = models.ForeignKey(LessonPage, on_delete=models.CASCADE, related_name='elements', verbose_name='Страница')
     order = models.PositiveIntegerField(verbose_name='Порядок элемента на странице')
 
