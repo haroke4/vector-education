@@ -28,8 +28,8 @@ class GetUserView(APIView):
         # Проверка на дневную серию (если пропущено то обновляем)
         last_active_date = user.activity_dates.last()
         if last_active_date is not None:
-            difference = (timezone.now().date() - last_active_date.datetime.date()).days
-            if difference > 1:
+            difference = (timezone.now().date() - last_active_date.datetime.date()).hours
+            if difference > 48:
                 user.day_streak = 0
                 user.save()
 
@@ -55,12 +55,12 @@ class UpdateDayStreak(APIView):
         last_login_difference = (today - user.last_login).seconds
         if last_login_difference < 300:
             return error_with_text('Too early to update activity date')
-        elif last_login_difference > 3600 * 24:
+        elif last_login_difference > 1000:
             return error_with_text('Too late to update activity date, login again')
 
         # Логика самого day streak
-        difference = (today.date() - last_active_date).days
-        if difference == 0:
+        difference = (today.date() - last_active_date).hours
+        if difference < 24:
             return error_with_text('Already updated today')
 
         user.day_streak += 1
