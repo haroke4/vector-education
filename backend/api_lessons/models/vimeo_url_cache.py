@@ -7,8 +7,8 @@ from backend.settings import VIMEO_ACCESS_TOKEN
 
 
 class VimeoUrlCacheModel(models.Model):
-    vimeo_link = models.URLField(verbose_name='Ссылка на видео')
-    playable_video_link = models.URLField(verbose_name='Ссылка на видеофайл')
+    vimeo_link = models.URLField(verbose_name='Ссылка на видео', max_length=1024)
+    playable_video_link = models.URLField(verbose_name='Ссылка на видеофайл', max_length=1024)
     expire_time = models.DateTimeField(verbose_name='Время истечения ссылки')
 
     class Meta:
