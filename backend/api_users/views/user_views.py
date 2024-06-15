@@ -28,8 +28,8 @@ class GetUserView(APIView):
         # Проверка на дневную серию (если пропущено то обновляем)
         last_active_date = user.activity_dates.last()
         if last_active_date is not None:
-            difference = (timezone.now().date() - last_active_date.datetime.date()).hours
-            if difference > 48:
+            difference = (timezone.now().date() - last_active_date.datetime.date()).seconds
+            if difference > 48 * 3600:
                 user.day_streak = 0
                 user.save()
 
