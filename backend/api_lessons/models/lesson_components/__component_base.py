@@ -18,12 +18,6 @@ class LessonPage(models.Model):
     def __str__(self):
         return f'{self.pk} LessonPage'
 
-    def save(self, *args, **kwargs):
-        if self.lesson.pages.filter(order=self.order).exclude(pk=self.pk).exists():
-            raise ValidationError('Order must be unique in lesson')
-
-        super().save(*args, **kwargs)
-
 
 class ComponentBase(models.Model):
     class Meta:

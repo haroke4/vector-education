@@ -40,11 +40,6 @@ class FillTextLine(models.Model):
         verbose_name = 'Строка компонента заполните текст'
         verbose_name_plural = 'Строки компонента заполните текст'
 
-    def save(self, *args, **kwargs):
-        if self.component.lines.filter(order=self.order).exclude(pk=self.pk).exists():
-            raise ValueError('Order must be unique in component')
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return f'{self.pk} FillTextLineComponent'
 
