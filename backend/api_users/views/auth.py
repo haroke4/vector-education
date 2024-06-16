@@ -50,7 +50,12 @@ class AuthViaFirebase(APIView):
                     password='no password',
                 )
                 user_profile.set_password('no password')
-            except IntegrityError:
+                user_profile.save()
+                NotificationSettings.objects.create(user=user_profile)
+
+
+            except IntegrityError as e:
+                print(e)
                 return error_with_text('A user with the provided Firebase UID already exists')
 
         # delete old token and generate a new one

@@ -9,7 +9,7 @@ class UserModelAdmin(UniversalAdmin):
     search_fields = ('name', 'email')
 
     def get_list_display(self, request):
-        return ('name', 'email', 'blocked', 'user_type')
+        return 'name', 'email', 'blocked', 'user_type'
 
 
 @admin.register(UserActivityDateModel)
@@ -23,3 +23,4 @@ class UserPointAddHistoryAdmin(UniversalAdmin):
 
 
 admin.site.register(NotificationSettings, UniversalAdmin)
+admin.site.register(DeletedUsersModel, UniversalAdmin)

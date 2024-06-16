@@ -24,5 +24,4 @@ class GetGlobalEventView(APIView):
                 'value': UserModel.objects.filter(pk__lt=request.user.pk, is_staff=False).count() + 1
             }
             data['datas'] = [bbb]
-        print(data)
         return success_with_text(data)
