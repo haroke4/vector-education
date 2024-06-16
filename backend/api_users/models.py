@@ -114,8 +114,8 @@ class NotificationSettings(models.Model):
     streak_notification = models.BooleanField(default=True)
     global_event_notification = models.BooleanField(default=True)
 
-    last_streak_notification = models.DateTimeField(default=timezone.now)
-    last_lesson_reminder = models.DateTimeField(default=timezone.now)
+    last_streak_notification = models.DateTimeField(default=timezone.datetime(2021, 1, 1))
+    last_lesson_reminder = models.DateTimeField(default=timezone.datetime(2021, 1, 1))
 
     class Meta:
         verbose_name = 'Настройки уведомлений'
