@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15
@@ -39,11 +37,21 @@ services:
       - db
       - redis
 
-  smtp:
-    build: ./smtp_server
-    network_mode: host
+  django-qcluster:
+    build: ./backend
+    command: python manage.py qcluster
+    networks:
+      - back
+    volumes:
+      - ./backend/:/usr/src/app/
     env_file:
       - .env
+    environment:
+      - RUN_MIGRATIONS = 0
+    depends_on:
+      - db
+      - backend
+
 
   nginx:
     build: ./nginx

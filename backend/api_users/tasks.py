@@ -11,5 +11,7 @@ def check_for_strike():
     for user in users:
         user: UserModel
         remaining_hours = user.remaining_hours_till_streak_reset()
-        if remaining_hours <= 24:
+        if 0 <= remaining_hours <= 24:
             send_streak_notification(user=user, minutes_remaining=remaining_hours * 60)
+
+    return True
