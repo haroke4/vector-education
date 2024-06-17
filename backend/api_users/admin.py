@@ -15,6 +15,7 @@ class UserModelAdmin(UniversalAdmin):
 @admin.register(UserActivityDateModel)
 class UserActivityDateModelAdmin(UniversalAdmin):
     list_display = ('user', 'datetime')
+    list_filter = ('user', 'datetime')
 
 
 @admin.register(UserPointAddHistory)
