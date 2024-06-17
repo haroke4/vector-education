@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from api_lessons.models import *
 from api_lessons.serializers import *
 from api_lessons.serializers import *
-from api_users.serializers import UserModelSerializer
+from api_users.serializers import UserModelSerializer, UserModelAsFriendSerializer
 from backend.global_function import *
 
 
@@ -45,6 +45,20 @@ class CheckLessonForEnding(APIView):
             user_lesson.save()
             return success_with_text(UserModelSerializer(request.user).data)
         return error_with_text(ans)
+
+
+class GetFriendsOnLessonView(APIView):
+    def post(self, request: Request):
+        serializer = GetLessonById(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        lesson: Lesson = serializer.validated_data['lesson_id']
+        friends = []
+        for i in request.user.friends.all():
+            last_lesson = i.lessons.last()
+            if last_lesson:
+                if last_lesson.lesson == lesson:
+                    friends.append(i)
+        return success_with_text(UserModelAsFriendSerializer(friends, many=True, user=request.user).data)
 
 
 class AddLessonToBatchView(APIView):

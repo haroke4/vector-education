@@ -12,8 +12,10 @@ if [[ $1 = 'config' ]]; then
 fi
 
 if [[ $1 = 'deploy' ]]; then
-    echo "Deployed"
+    echo "Deploying.."
+    docker compose down
     docker compose up -d --build
+    echo "Deployed"
 fi
 
 if [[ $1 = 'stop' ]]; then
