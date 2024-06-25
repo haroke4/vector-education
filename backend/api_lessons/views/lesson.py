@@ -30,7 +30,7 @@ class GetLessonView(APIView):
                 return error_with_text('unlock_prev_lesson')
 
         UserLessonModel.objects.get_or_create(user=user, lesson=lesson)
-        return success_with_text(LessonSerializer(lesson, context={'user': user}).data)
+        return success_with_text(LessonSerializer(lesson, user=request.user, context={'user': request.user}, ).data)
 
 
 class CheckLessonForEnding(APIView):
@@ -59,6 +59,18 @@ class GetFriendsOnLessonView(APIView):
                 if last_lesson.lesson == lesson:
                     friends.append(i)
         return success_with_text(UserModelAsFriendSerializer(friends, many=True, user=request.user).data)
+
+
+class LeaveReviewOnLessonView(APIView):
+    def post(self, request: Request):
+        serializer = LeaveReviewOnLessonSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        lesson: Lesson = serializer.validated_data['lesson_id']
+        user_lesson: UserLessonModel = UserLessonModel.objects.get(user=request.user, lesson=lesson)
+        user_lesson.review_mark = serializer.validated_data['mark']
+        user_lesson.review_comment = serializer.validated_data['comment']
+        user_lesson.save()
+        return success_with_text('ok')
 
 
 class AddLessonToBatchView(APIView):

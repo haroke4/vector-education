@@ -31,6 +31,7 @@ class Lesson(models.Model):
     lesson_batch = models.ForeignKey(LessonBatch, on_delete=models.CASCADE, verbose_name='Коллекция уроков',
                                      related_name='lessons')
     title = models.CharField(max_length=200, verbose_name='Тема')
+    description = models.CharField(max_length=4096, verbose_name='Описание')
     order = models.IntegerField(verbose_name='Порядок урока в коллекции')
 
     def __str__(self):

@@ -12,7 +12,7 @@ class LessonMinimalDataSerializer(UserContextNeededSerializer, serializers.Model
 
     class Meta:
         model = Lesson
-        fields = ['id', 'is_available_on_free', 'completed', 'friends_count']
+        fields = ['id', 'is_available_on_free', 'completed', 'friends_count', 'title', 'description']
 
     def get_completed(self, obj):
         user_data = UserLessonModel.objects.filter(user=self.user, lesson=obj).first()
@@ -41,9 +41,23 @@ class LessonBatchSerializer(UserContextNeededSerializer, serializers.ModelSerial
         return LessonMinimalDataSerializer(obj.lessons.all(), user=self.user, many=True).data
 
 
-class LessonSerializer(NestedSupportedModelSerializer):
+class LessonSerializer(NestedSupportedModelSerializer, UserContextNeededSerializer):
     pages = LessonPageSerializer(many=True)
+    review_mark = serializers.SerializerMethodField()
+    review_comment = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
         fields = '__all__'
+
+    def get_review_mark(self, obj: Lesson):
+        user_lesson = UserLessonModel.objects.filter(user=self.user, lesson=obj).first()
+        if user_lesson:
+            return user_lesson.review_mark
+        return None
+
+    def get_review_comment(self, obj: Lesson):
+        user_lesson = UserLessonModel.objects.filter(user=self.user, lesson=obj).first()
+        if user_lesson:
+            return user_lesson.review_comment
+        return ''

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from api_lessons.models import *
+from api_lessons.serializers import GetLessonById
 
 
 class AnswerToQuestionSerializer(serializers.Serializer):
@@ -72,3 +73,8 @@ class AnswerToPutInOrderComponentSerializer(serializers.Serializer):
             return order
 
     elements = Temp(many=True)
+
+
+class LeaveReviewOnLessonSerializer(GetLessonById):
+    mark = serializers.IntegerField(min_value=1, max_value=5)
+    comment = serializers.CharField(allow_blank=True, max_length=4096)
