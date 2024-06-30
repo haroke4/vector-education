@@ -57,6 +57,7 @@ class LessonPageAdmin(admin.ModelAdmin):
 class UserLessonModelAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'lesson', 'completed')
     search_fields = list_display
+    list_filter = ('user', 'lesson')
 
 
 #
