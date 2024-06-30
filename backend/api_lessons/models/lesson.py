@@ -35,7 +35,7 @@ class Lesson(models.Model):
     order = models.IntegerField(verbose_name='Порядок урока в коллекции')
 
     def __str__(self):
-        return f'{self.pk} Lesson: {self.title} '
+        return f'{self.pk} Lesson: {self.title} Order: {self.order} in {self.lesson_batch.name}'
 
     class Meta:
         verbose_name = 'Урок'
