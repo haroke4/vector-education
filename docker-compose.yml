@@ -61,8 +61,7 @@ services:
     volumes:
       - static_volume:/home/app/staticfiles
       - media_volume:/home/app/protected
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
 
     ports:
       - '80:80'
@@ -72,6 +71,12 @@ services:
     depends_on:
       - backend
     restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 
 
