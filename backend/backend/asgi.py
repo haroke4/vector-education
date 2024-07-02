@@ -33,7 +33,7 @@ from django_q.models import Schedule
 
 # Check if the task exists
 if Schedule.objects.filter(name='check_for_strike').exists():
-    print("admin_farm_check already exists, skipping creation...")
+    print("check_for_strike already exists, skipping creation...")
 else:
     from django.utils import timezone
 

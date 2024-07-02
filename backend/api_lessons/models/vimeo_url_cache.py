@@ -25,6 +25,8 @@ def get_video_link_from_vimeo(vimeo_link):
     video_id = vimeo_link.split('/')[-1]
     headers = {'Authorization': 'Bearer ' + VIMEO_ACCESS_TOKEN}
     response = requests.get(f'https://api.vimeo.com/videos/{video_id}?fields=play', headers=headers)
+    if not response.json().get('play', False):
+        return 'https://dummylink.dummy'
     progressive = response.json()['play']['progressive']
     video = [video for video in progressive if video['rendition'] == '1080p'][0]
 

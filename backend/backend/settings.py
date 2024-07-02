@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'api_lessons',
     'api_users',
     'api_data_collection',
-    'api_global_event'
+    'api_global_event',
+    'api_additional_materials',
 ]
 
 MIDDLEWARE = [
