@@ -1,7 +1,11 @@
+from pprint import pprint
+
+from rest_framework.request import Request
 from rest_framework.views import APIView
 from api_lessons.models import *
 from api_lessons.serializers import *
 from api_lessons.serializers import *
+from api_users.serializers import UserModelSerializer, UserModelAsFriendSerializer
 from backend.global_function import *
 
 
@@ -17,7 +21,7 @@ class GetLessonView(APIView):
         serializer.is_valid(raise_exception=True)
         lesson: Lesson = serializer.validated_data['lesson_id']
         user: UserModel = request.user
-        if not user.is_paid() and not lesson.is_available_on_free:
+        if not lesson.is_available_for_user(user):
             return error_with_text('lesson_not_available')
 
         lesson_before = Lesson.objects.filter(lesson_batch=lesson.lesson_batch, order=lesson.order - 1).first()
@@ -26,18 +30,55 @@ class GetLessonView(APIView):
                 return error_with_text('unlock_prev_lesson')
 
         UserLessonModel.objects.get_or_create(user=user, lesson=lesson)
-        return success_with_text(LessonSerializer(lesson, user=request.user).data)
+        return success_with_text(LessonSerializer(lesson, user=request.user, context={'user': request.user}, ).data)
 
 
-class AnswerToQuestionView(APIView):
-    def post(self, request):
-        serializer = AnswerToQuestionSerializer(data=request.data)
+class CheckLessonForEnding(APIView):
+    def post(self, request: Request):
+        serializer = GetLessonById(data=request.data)
         serializer.is_valid(raise_exception=True)
-        answer: QuestionAnswer = serializer.validated_data['answer_id']
-        user: UserModel = request.user
+        lesson: Lesson = serializer.validated_data['lesson_id']
+        ans = lesson.is_lesson_done_for_user(request.user)
+        if ans == 'ok':
+            user_lesson = UserLessonModel.objects.get_or_create(user=request.user, lesson=lesson)[0]
+            user_lesson.completed = True
+            user_lesson.save()
+            return success_with_text(UserModelSerializer(request.user).data)
+        return error_with_text(ans)
 
-        if not user.is_paid() and not answer.question.lesson.is_available_on_free:
-            return error_with_text('lesson_not_available')
-        if answer.is_correct:
-            UserQuestionModel.objects.get_or_create(user=user, question=answer.question)
-        return success_with_text({'is_correct': answer.is_correct})
+
+class GetFriendsOnLessonView(APIView):
+    def post(self, request: Request):
+        serializer = GetLessonById(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        lesson: Lesson = serializer.validated_data['lesson_id']
+        friends = []
+        for i in request.user.friends.all():
+            last_lesson = i.lessons.last()
+            if last_lesson:
+                if last_lesson.lesson == lesson:
+                    friends.append(i)
+        return success_with_text(UserModelAsFriendSerializer(friends, many=True, user=request.user).data)
+
+
+class LeaveReviewOnLessonView(APIView):
+    def post(self, request: Request):
+        serializer = LeaveReviewOnLessonSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        lesson: Lesson = serializer.validated_data['lesson_id']
+        user_lesson: UserLessonModel = UserLessonModel.objects.get(user=request.user, lesson=lesson)
+        user_lesson.review_mark = serializer.validated_data['mark']
+        user_lesson.review_comment = serializer.validated_data['comment']
+        user_lesson.save()
+        return success_with_text('ok')
+
+
+class AddLessonToBatchView(APIView):
+    def post(self, request: Request):
+        # delete all lessons
+        Lesson.objects.all().delete()
+
+        lesson_serializer = LessonSerializer(data=request.data, user=request.user)
+        lesson_serializer.is_valid(raise_exception=True)
+        lesson: Lesson = lesson_serializer.save()
+        return success_with_text(LessonSerializer(lesson, user=request.user).data)

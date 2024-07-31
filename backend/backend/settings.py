@@ -18,7 +18,10 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=1))
 ALLOWED_HOSTS = os.environ.get(
-    "DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1 192.168.8.101 10.10.203.250").split(" ")
+    "DJANGO_ALLOWED_HOSTS", "*").split(" ")
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "http://localhost").split(" ")
 
 # Application definition
 
@@ -35,9 +38,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_q',
     'rest_framework.authtoken',
-    "api_lessons",
-    "api_users",
+    'api_lessons',
+    'api_users',
     'api_data_collection',
+    'api_global_event',
+    'api_additional_materials',
 ]
 
 MIDDLEWARE = [
@@ -229,3 +234,7 @@ else:
 PROTECTED_MEDIA_URL = "/protected"
 PROTECTED_MEDIA_LOCATION_PREFIX = "/internal"  # Prefix used in nginx config
 PROTECTED_MEDIA_AS_DOWNLOADS = False
+
+# vimeo
+
+VIMEO_ACCESS_TOKEN = os.environ.get("VIMEO_ACCESS_TOKEN", '')

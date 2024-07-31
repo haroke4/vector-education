@@ -3,6 +3,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.request import Request
 
+from api_users.cloud_messaging import send_friend_request_notification
 from api_users.serializers import *
 from api_users.models import *
 from api_users.serializers.model_serializers import UserModelSerializer
@@ -39,6 +40,7 @@ class AddFriendView(APIView):
         this_user: UserModel = request.user
         other_user: UserModel = serializer.validated_data['user_id']
         this_user.send_friend_request(other_user)
+        send_friend_request_notification(user=other_user, request_sender=this_user)
         return success_with_text('Friend request sent')
 
 

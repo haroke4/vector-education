@@ -10,3 +10,10 @@ backend/logs.log
 backend/staticfiles/
 
 service_account.json
+
+**/staticfiles/
+**/protected/
+**/mediafiles/
+/backend/mediafiles/**
+/backend/protected/**
+root@backend.vector-educate.com

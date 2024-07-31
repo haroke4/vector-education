@@ -1,22 +1,11 @@
-import uuid
-
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-from django.utils.deconstruct import deconstructible
 from protected_media.models import ProtectedImageField
-from rest_framework.exceptions import ValidationError
+from rest_framework.authtoken.models import Token
 
-
-@deconstructible
-class PathAndRename(object):
-    def __init__(self, path):
-        self.path = path
-
-    def __call__(self, instance, filename):
-        ext = filename.split('.')[-1]
-        filename = f'{uuid.uuid4()}.{ext}'
-        return f'{self.path}{filename}'
+from backend.global_function import PathAndRename
 
 
 class UserTypes:
@@ -53,6 +42,7 @@ class UserModel(AbstractUser):
                                                  verbose_name='Запросы в друзья')
 
     # App related stuff
+    timezone_difference = models.IntegerField(default=0, verbose_name='Разница во времени')
     points = models.IntegerField(default=0, verbose_name='Баллы')
     day_streak = models.IntegerField(default=0, verbose_name='Дневная серия')
     max_day_streak = models.IntegerField(default=0, verbose_name='Максимальная дневная серия')
@@ -60,7 +50,7 @@ class UserModel(AbstractUser):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return f'{self.pk} Profile of {self.name}'
+        return f'{self.pk} Profile of {self.email}'
 
     def add_points(self, points: int, description: str):
         if points < 0:
@@ -73,6 +63,23 @@ class UserModel(AbstractUser):
 
     def is_paid(self):
         return self.user_type in (UserTypes.paid, UserTypes.premium_paid)
+
+    def current_datetime(self) -> timezone.datetime:
+        return timezone.now() + timezone.timedelta(hours=self.timezone_difference)
+
+    def remaining_hours_till_streak_reset(self) -> int:
+        last_active_date = self.activity_dates.first()
+        if last_active_date is None:
+            return -1
+
+        # прибавляем разницу часов потому что ласт актив дейттайм в UTC
+        last_datetime = last_active_date.datetime + timezone.timedelta(hours=self.timezone_difference)
+
+        # разница в часах до след дня КОГДА пользователь получил +1 к страйку
+        hours_till_tomorrow = 24 - last_datetime.hour
+
+        difference = (self.current_datetime() - last_datetime).total_seconds() // 3600
+        return hours_till_tomorrow + 24 - difference
 
     def send_friend_request(self, to_user):
         if (to_user != self) and (to_user not in self.friends.all()):
@@ -92,13 +99,30 @@ class UserModel(AbstractUser):
             self.friendship_requests.remove(from_user)
 
 
+class DeletedUsersModel(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    email = models.EmailField(max_length=255, unique=True)
+    firebase_user_id = models.CharField(max_length=200, null=True, blank=True)
+    name = models.CharField(max_length=255, verbose_name='Имя')
+    description = models.TextField(verbose_name='Описание')
+
+
 class NotificationSettings(models.Model):
-    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
-    periodic_lesson_reminders = models.BooleanField(default=True)
-    friend_request_notifications = models.BooleanField(default=True)
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name='notification_settings')
+    periodic_lesson_reminder = models.BooleanField(default=True)
+    friend_request_notification = models.BooleanField(default=True)
+    streak_notification = models.BooleanField(default=True)
+    global_event_notification = models.BooleanField(default=True)
+
+    last_streak_notification = models.DateTimeField(default=timezone.datetime(2021, 1, 1))
+    last_lesson_reminder = models.DateTimeField(default=timezone.datetime(2021, 1, 1))
+
+    class Meta:
+        verbose_name = 'Настройки уведомлений'
+        verbose_name_plural = 'Настройки уведомлений'
 
     def __str__(self):
-        return f'Настройки Уведомлении для пользователя {self.user.username}'
+        return f'{self.pk} Настройки уведомлении'
 
 
 class UserActivityDateModel(models.Model):

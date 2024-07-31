@@ -1,8 +1,14 @@
 from rest_framework import serializers
 
-from api_users.models import UserModel, UserTypes
+from api_users.models import *
 from api_lessons.models import Lesson, UserLessonModel
 from backend.global_function import UserContextNeededSerializer
+
+
+class NotificationSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationSettings
+        exclude = ['id', 'user']
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -10,12 +16,13 @@ class UserModelSerializer(serializers.ModelSerializer):
     paid = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()
     ranking = serializers.SerializerMethodField()
+    notification_settings = NotificationSettingsSerializer()
 
     class Meta:
         model = UserModel
         # excluding default django user fields
         fields = ['id', 'photo', 'paid', 'progress', 'ranking', 'name', 'email', 'description', 'day_streak',
-                  'max_day_streak',]
+                  'max_day_streak', 'fcm_token', 'notification_settings', 'timezone_difference']
 
     def get_photo(self, obj: UserModel):
         if obj.photo:

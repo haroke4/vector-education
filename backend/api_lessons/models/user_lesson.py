@@ -13,15 +13,5 @@ class UserLessonModel(models.Model):
                              related_name='lessons')
     lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, verbose_name='Урок')
     completed = models.BooleanField(default=False, verbose_name='Урок завершен')
-
-
-class UserQuestionModel(models.Model):
-    user = models.ForeignKey('api_users.UserModel', on_delete=models.CASCADE, verbose_name='Пользователь')
-    question = models.ForeignKey('QuestionComponent', on_delete=models.CASCADE, verbose_name='Вопрос')
-
-    def __str__(self):
-        return f'{self.pk} UserQuestionModel'
-
-    class Meta:
-        verbose_name = 'Ответ пользователя на вопрос урока'
-        verbose_name_plural = 'Ответы пользователя на вопросы урока'
+    review_mark = models.IntegerField(null=True, blank=True, verbose_name='Оценка урока')
+    review_comment = models.CharField(max_length=4096, null=False, blank=True, verbose_name='Комментарий к уроку')
